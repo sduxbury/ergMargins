@@ -1,0 +1,25 @@
+Package: ergMargins
+Type: Package
+Title: Package to calculate marginal effects and conduct mediation/moderation analyses in ERGM.
+Version: 0.1.0
+Author: Scott Duxbury, The Ohio State University.
+Maintainer: Scott Duxbury <duxbury.5@osu.edu>
+Description: Implements a series of tests in ERGM, including calculation of marginal effects, 
+    diagnostic tests for multicollinearity,
+    mediation analysis, and tests of significance for interactions.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports:
+    numDeriv,
+    statnet,
+    btergm,
+    ergm,
+    Matrix,
+    network,
+    xergm.common
+Suggests:
+    MASS,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
