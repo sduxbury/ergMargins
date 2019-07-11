@@ -38,6 +38,9 @@ Scott W. Duxbury, PhD Candidate, The Ohio State University, Department of Sociol
 \examples{
 set.seed(21093)
 
+library(ergm)
+data("faux.mesa.high")
+
 my.ergm2<-ergm(faux.mesa.high~edges+
                 nodecov("Grade")+
                 nodefactor("Race")+
@@ -45,16 +48,16 @@ my.ergm2<-ergm(faux.mesa.high~edges+
                 nodematch("Grade")+
                 nodematch("Sex")+
                 nodematch("Race")+
-               gwesp(.5,fixed=T))
+               gwesp(.5,fixed=TRUE))
 
 vif.ergm(my.ergm2)
 
 #to compute the tolerance instead of the VIF
 
-1/(vif.ergm(my.ergm2)
+tol<-1/(vif.ergm(my.ergm2))
 
-#to compute R-squared (proportion variation of focal variable by remaining model covariates)
-1-(1/vif.ergm(my.ergm2))
+#to compute R squared
+r.sq<-1-tol
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

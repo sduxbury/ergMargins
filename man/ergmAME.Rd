@@ -28,6 +28,8 @@ Computes the AME for variables specified. If var2 and inter are left at NULL, th
 When at.2 and var2 are specified, a table of second differences is also returned. The table of second differences assesses whether the difference in marginal effects is significant between levels of a moderator (values of at.2). If the moderator is binary, the second difference tests the overall significance of an interaction. The tests statistic is a Wald test.
 
 If more than 2 values of at.2 are specified, the function also computes the average absolute Wald test statistic and average second difference. The average second difference measures the average change in the AME of var1 between levels of a moderator. The average absolute Wald test is the mean absolute value of the Wald tests for all second differences. It assesses whether, on average, there is a significant difference between the second differences and zero. A significant result means the interaction is significant.
+
+Note that when an interaction term is an absolute difference between nodal covariates, ergm.AME holds the value of var1 at its mean. This is because the partial derivative for the absolute difference between covariates treats allows var1 to vary, which tells us little about tendencies towards tie variables when two nodal covariates are at similar values. Thus, the mean is used as a representative value at which to compute the AME for absolute differences.
 }
 \value{
 If var2 and inter=NULL, then a table is returned with the AME for var1, its standard error, and test statistic. Note again that all AMEs are in the metric of tie probabilities, not log-odds.
@@ -87,19 +89,17 @@ main.eff<-ergm.AME(my.ergm,"mutual")
 ##with moderator
 sex.inter<-ergm.AME(my.ergm,"nodeifactor.sex.2","nodeofactor.sex.2","nodematch.sex")
 
-#----The following code has not been run
-
-##with moderator at specific levels
-grade.inter<-ergm.AME(my.ergm,"nodeifactor.grade","nodeofactor.grade","absdiff.grade",at.2=c(9,12))
+##with moderator at specific values
+grade.inter<-ergm.AME(my.ergm,"nodeicov.grade","nodeocov.grade","absdiff.grade",at.2=c(9,12))
 
 ##when moderator changes from mean to mean +sd
-  #compute means/sd in dyad sample--will not usually be necessary for exogenous covariates,     #but necessary for endogenous model terms
+#compute means/sd in dyad sample--will not usually be necessary for exogenous covariates,     #but necessary for endogenous model terms
 
 tie.probs<-edge.prob2(my.ergm)
-m<-mean(edge.prob2$nodeofactor.grade)
-m.sd<-m+sd(edge.prob2$nodeofactor.grade)
+m<-mean(tie.probs$nodeocov.grade)
+m.sd<-m+sd(tie.probs$nodeocov.grade)
 
-grade.inter.at.means<-ergm.AME(my.ergm,"nodeifactor.grade","nodeofactor.grade","absdiff.grade",at.2=c(m,m.sd))
+grade.inter.at.means<-ergm.AME(my.ergm,"nodeicov.grade","nodeocov.grade","absdiff.grade",at.2=c(m,m.sd))
 
 ###main effects for all model covariates
 for(i in 1:length(coef(my.ergm))){

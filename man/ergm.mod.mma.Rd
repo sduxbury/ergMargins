@@ -111,7 +111,8 @@ my.ergmb<-ergm(faux.dixon.high~edges+
                 absdiff("grade")+
                 nodematch("sex")+
                 mutual+
-                gwesp(.2,fixed=T),
+                gwdsp(.5,fixed=TRUE)+
+                gwesp(.2,fixed=TRUE),
                constraints = ~bd(maxout=5),
               ergm.control=control.ergm(parallel=4,
                                         parallel.type="PSOCK"))
@@ -120,7 +121,7 @@ summary(my.ergmb)
 
 
 sex.mod.med<-ergm.mod.mma(my.ergm,my.ergmb,var1="nodeifactor.sex.2",var2="nodeofactor.sex.2",
-             inter="nodematch.sex",mediator="gwesp.fixed.0.2",int.eff = T,joint=T)
+             inter="nodematch.sex",mediator="gwesp.fixed.0.2",int.eff = TRUE,joint=TRUE)
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

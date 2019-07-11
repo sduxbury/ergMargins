@@ -21,9 +21,8 @@
 #standard errors are computed using the delta method.
 
 
-ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.1=NULL,at.2=NULL,return.dydx=F){
+ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
 
-  if(length(at.1)>1) stop("at.1 currently only takes a single value, not a vector greater than length 1.")
 
   ##get edge probabilities
   dyad.mat<-edge.prob2(model)[,-c(1)]
@@ -46,10 +45,6 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.1=NULL,at.2=NULL,return.dy
   }
   #create marginal effects
   dyad.means<-colMeans(dyad.mat,na.rm=T)
-  if(!is.null(at.1)){
-    dyad.means[var1]<-at.1
-  }
-
   p<-1/(1+exp(-dyad.means%*%theta))
 
 

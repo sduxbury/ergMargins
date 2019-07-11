@@ -8,7 +8,7 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-edge.prob2(model,verbose=F)
+edge.prob2(model,verbose=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

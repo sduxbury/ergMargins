@@ -53,7 +53,11 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
   ##identify unique values of at.2--not used if var2==NULL
   if(is.null(at.2)){
     at.2<-sort(unique(dyad.mat[,var2]))
-    }
+  }
+
+  if(length(at.2)>10){
+    Warning("More than 10 values of at.2 exist for the moderating variable. It may take awhile to compute average marginal effects. Consider specifying fewer values of at.2.")
+  }
 
       ##marginal effects with no interaction
     if(is.null(var2)){
@@ -197,7 +201,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
           #marginal effects for absolute differences
         if(!is.na(pmatch("absdiff",inter))){
           dyad.submat[,inter]<-abs(dyad.submat[,var1]-dyad.submat[,var2])
-
+          if(i ==1){message(paste("Note that marginal effects for absolute differences are computed holding",var1,"at its mean. The mean for",var1,"is", mean(dyad.mat[,var1])))}
           if(self.int==T){
             dyad.submat<-dyad.submat[,!colnames(dyad.submat)%in%var2]
           }
@@ -215,6 +219,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
 
           dydx.list[[i]]<-sapply(names(theta),function(x)
             (p*(1-p)*(theta[var1]+(theta[inter]*at.diffs))))
+
 
         }else{
 
