@@ -40,8 +40,7 @@ my.ergm2<-ergm(faux.mesa.high~edges+
                 nodefactor("Sex")+
                 nodematch("Grade")+
                 nodematch("Sex")+
-                nodematch("Race")+
-               gwesp(.5,fixed=TRUE))
+                nodematch("Race"))
 
 vif.ergm(my.ergm2)
 

@@ -61,7 +61,8 @@ Syntax is loosely based on the margins package by Thomas Leeper and Stata's marg
 \code{\link[margins]{margins}}
 }
 \examples{
-library(statnet)
+\donttest{
+library(ergm)
 
 
 data("faux.dixon.high")
@@ -72,15 +73,11 @@ set.seed(21093)
 my.ergm<-ergm(faux.dixon.high~edges+
                 nodeicov("grade")+
                 nodeocov("grade")+
-                nodeifactor("race")+
-                nodeofactor("race")+
                 nodeifactor("sex")+
                 nodeofactor("sex")+
                 absdiff("grade")+
                 nodematch("sex")+
-                mutual,
-              ergm.control=control.ergm(parallel=4,
-                                        parallel.type="PSOCK"))
+                mutual)
 
 #main effect
 main.eff<-ergm.AME(my.ergm,"mutual")
@@ -100,11 +97,6 @@ m.sd<-m+sd(tie.probs$nodeocov.grade)
 
 grade.inter.at.means<-ergm.AME(my.ergm,"nodeicov.grade","nodeocov.grade",
                               "absdiff.grade",at.2=c(m,m.sd))
-
-###main effects for all model covariates
-for(i in 1:length(coef(my.ergm))){
-print(ergm.AME(my.ergm,names(coef(my.ergm))[i]))
-
 }
 
 }

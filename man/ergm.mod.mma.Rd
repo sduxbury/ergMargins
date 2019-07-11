@@ -72,55 +72,34 @@ Scott Duxbury, PhD Candidate, the Ohio State University, Department of Sociology
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-#------------------------------------------------------------------------
-#                Moderation analysis example
-#------------------------------------------------------------------------
 
-library(statnet)
+\donttest{
+
+library(ergm)
 
 
 data("faux.dixon.high")
 
 faux.dixon.high
 
-set.seed(21093)
 
 my.ergm<-ergm(faux.dixon.high~edges+
-                nodeicov("grade")+
-                nodeocov("grade")+
-                nodeifactor("race")+
-                nodeofactor("race")+
                 nodeifactor("sex")+
                 nodeofactor("sex")+
-                absdiff("grade")+
-                nodematch("sex")+
-                mutual,
-              ergm.control=control.ergm(parallel=4,
-                                        parallel.type="PSOCK"))
-set.seed(21093)
+                nodematch("sex"))
 
 my.ergmb<-ergm(faux.dixon.high~edges+
-                nodeicov("grade")+
-                nodeocov("grade")+
-                nodeifactor("race")+
-                nodeofactor("race")+
                 nodeifactor("sex")+
                 nodeofactor("sex")+
-                absdiff("grade")+
                 nodematch("sex")+
-                mutual+
-                gwdsp(.5,fixed=TRUE)+
-                gwesp(.2,fixed=TRUE),
-               constraints = ~bd(maxout=5),
-              ergm.control=control.ergm(parallel=4,
-                                        parallel.type="PSOCK"))
+                mutual)
 
 summary(my.ergmb)
 
 
 sex.mod.med<-ergm.mod.mma(my.ergm,my.ergmb,var1="nodeifactor.sex.2",var2="nodeofactor.sex.2",
-             inter="nodematch.sex",mediator="gwesp.fixed.0.2",int.eff = TRUE,joint=TRUE)
-
+             inter="nodematch.sex",mediator="mutual",int.eff = TRUE,joint=TRUE)
+}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

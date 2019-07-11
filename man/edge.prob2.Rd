@@ -40,27 +40,20 @@ original author is Philip Leifeld at University of Essex.
 \code{\link[btergm]{edgeprob}}
 }
 \examples{
-library(statnet)
+\donttest{
+library(ergm)
 
 
 data("faux.dixon.high")
 
 
-set.seed(21093)
-
 my.ergm<-ergm(faux.dixon.high~edges+
-                nodeicov("grade")+
-                nodeocov("grade")+
-                nodeifactor("race")+
-                nodeofactor("race")+
                 nodeifactor("sex")+
                 nodeofactor("sex")+
-                absdiff("grade")+
                 nodematch("sex")+
-                mutual,
-              ergm.control=control.ergm(parallel=4,
-                                        parallel.type="PSOCK"))
+                mutual)
 edge.prob2(my.ergm)
+}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

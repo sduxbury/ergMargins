@@ -58,7 +58,8 @@ Note that ergm.mma may have restrictive run times in large networks or high dime
 \code{\link{ergm.AME}}
 }
 \examples{
-library(statnet)
+\donttest{
+library(ergm)
 
 
 data("faux.mesa.high")
@@ -91,14 +92,14 @@ my.ergm2<-ergm(faux.mesa.high~edges+
 
 ###gwesp as single mediator
 ergm.mma(my.ergm1,my.ergm2,mediator="gwesp.fixed.0.5",
-             direct.effect=names(my.ergm1$coef[8]))
+             direct.effect="nodecov.Grade")
 
 
 ###multiple mediators
 
 set.seed(21093)
 
-my.ergm4<-ergm(faux.mesa.high~edges+
+my.ergm3<-ergm(faux.mesa.high~edges+
                  nodecov("Grade")+
                  nodefactor("Race")+
                  nodefactor("Sex")+
@@ -113,9 +114,9 @@ my.ergm4<-ergm(faux.mesa.high~edges+
 )
 
 ##joint mediation for gwdsp and gwesp
-ergm.mma(my.ergm2,my.ergm4,mediator=c("gwdsp.fixed.1","gwesp.fixed.0.5"),
-         direct.effect=names(my.ergm4$coef[8]))
-
+ergm.mma(my.ergm2,my.ergm3,mediator=c("gwdsp.fixed.1","gwesp.fixed.0.5"),
+         direct.effect=names(my.ergm3$coef[8]))
+}
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
