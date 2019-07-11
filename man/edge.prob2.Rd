@@ -18,7 +18,7 @@ edge.prob2(model,verbose=FALSE)
   \item{verbose}{Boolean operator. If set to T, updates user on progress of edge.prob2. May be useful for large networks.}
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+Computes tie probabilities for each dyad in the ERGM sample space.This function is largely a wrapper for the edgeprob function in btergm, but can be applied to curved ERGMs.
 }
 \value{
 Returns a dataframe where weach row is a dyad and each column is a term in the model, an identification variable for the vertices/dyads, or the estimated probability of observing a tie. See edgeprob() in btergm for more details.
@@ -28,14 +28,10 @@ Returns a dataframe where weach row is a dyad and each column is a term in the m
 %%  \item{comp2 }{Description of 'comp2'}
 %% ...
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{
-Scott Duxbury, original author is Philip Leifeld at University of Essex.
-}
-\note{
-%%  ~~further notes~~
+Scott Duxbury PhD candidate Ohio State University,
+original author is Philip Leifeld at University of Essex.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

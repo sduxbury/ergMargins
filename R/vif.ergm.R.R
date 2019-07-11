@@ -8,13 +8,13 @@
 
 vif.ergm<-function(my.ergm){
 
-  cor.mat<-cov2cor(my.ergm$covar) #calculate correlation matrix
+  cor.mat<-stats::cov2cor(my.ergm$covar) #calculate correlation matrix
   corr5<-cor.mat[-c(1),-c(1)] ##omit edges term
 
   corr5<-corr5[!is.na(corr5[1:nrow(corr5)]),]
   corr5<-corr5[,which(!is.na(corr5[1,1:ncol(corr5)]))]
 
-  VIFS<-matrix(0,nr=1,nc=ncol(corr5))
+  VIFS<-matrix(0,nrow=1,ncol=ncol(corr5))
 
   for(i in 1:ncol(corr5)){
 

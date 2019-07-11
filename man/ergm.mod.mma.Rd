@@ -61,9 +61,7 @@ Scott Duxbury, PhD Candidate, the Ohio State University, Department of Sociology
 
 %%  ~~who you are~~
 }
-\note{
-%%  ~~further notes~~
-}
+
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 

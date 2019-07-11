@@ -19,15 +19,15 @@ edge.prob2<-function (model, verbose = FALSE)
     stop(paste("The edgeprob function is only applicable to ergm, btergm, and",
                "mtergm objects."))
   }
-  l <- tergmprepare(formula = btergm::getformula(object), offset = FALSE,
+  l <- tergmprepare2(formula = btergm::getformula(object), offset = FALSE,
                     blockdiag = FALSE, verbose = FALSE)
   for (cv in 1:length(l$covnames)) {
     assign(l$covnames[cv], l[[l$covnames[cv]]])
   }
   assign("offsmat", l$offsmat)
-  form <- as.formula(l$form)
+  form <- stats::as.formula(l$form)
   covnames <- l$covnames[-1]
-  coefs <- coef(object)
+  coefs <- stats::coef(object)
   if (verbose == TRUE) {
     message("Creating data frame with predictors...")
   }
@@ -36,8 +36,8 @@ edge.prob2<-function (model, verbose = FALSE)
   for (i in 1:length(l$networks)) {
     mat <- as.matrix(l$networks[[i]])
     imat <- matrix(rep(1:nrow(mat), ncol(mat)), nrow = nrow(mat))
-    if ((class(l$networks[[i]]) == "network" && is.bipartite(l$networks[[i]])) ||
-        (class(l$networks[[i]]) == "matrix" && is.mat.onemode(l$networks[[i]]) ==
+    if ((class(l$networks[[i]]) == "network" && network::is.bipartite(l$networks[[i]])) ||
+        (class(l$networks[[i]]) == "matrix" && xergm.common::is.mat.onemode(l$networks[[i]]) ==
          FALSE)) {
       mn <- nrow(mat) + 1
       mx <- nrow(mat) + ncol(mat)
@@ -48,7 +48,7 @@ edge.prob2<-function (model, verbose = FALSE)
       jmat <- matrix(rep(1:ncol(mat), nrow(mat)), nrow = nrow(mat),
                      byrow = TRUE)
     }
-    f <- as.formula(paste(l$form, " + edgecov(imat) + edgecov(jmat)"))
+    f <- stats::as.formula(paste(l$form, " + edgecov(imat) + edgecov(jmat)"))
     mpli <- ergm::ergmMPLE(f)
     Y <- c(Y, mpli$response)
     dyads <- rbind(dyads, cbind(mpli$predictor, i))
@@ -63,7 +63,7 @@ edge.prob2<-function (model, verbose = FALSE)
   class(dyads[, length(colnames(dyads))]) <- "integer"
   class(dyads[, length(colnames(dyads)) - 1]) <- "integer"
   class(dyads[, length(colnames(dyads)) - 2]) <- "integer"
-  cf <- coef(object)
+  cf <- stats::coef(object)
   cf.length <- length(cf)
   cf <- cf[!cf %in% c(Inf, -Inf)]
   if (length(cf) != cf.length) {
@@ -75,7 +75,7 @@ edge.prob2<-function (model, verbose = FALSE)
   chgstat <- dyads[, 2:(ncol(dyads) - 3)]
   ##handle decay term in curved ergms
     #since micro level change statistics are already properly scored, simply remove decay term
-  if(is.curved(object)){
+  if(ergm::is.curved(object)){
     curved.term<-vector(length=length(object$etamap$curved))
     for(i in 1:length(object$etamap$curved)){
     curved.term[i]<-object$etamap$curved[[i]]$from[2]

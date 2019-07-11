@@ -30,11 +30,11 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
   start.drops<-ncol(dyad.mat)-5
   dyad.mat<-dyad.mat[,-c(start.drops:ncol(dyad.mat))]
   vc <- stats::vcov(model)
-  theta<-coef(model)
+  theta<-stats::coef(model)
   ##handle curved ergms by removing decay parameter
     #note that the micro-level change statistics are already properly weighted,
     #so decay term is not needed for predictions
-  if(is.curved(model)){
+  if(ergm::is.curved(model)){
     curved.term<-vector(length=length(model$etamap$curved))
     for(i in 1:length(model$etamap$curved)){
       curved.term[i]<-model$etamap$curved[[i]]$from[2]
@@ -72,9 +72,9 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
 
     MEM.se<-sqrt(variance.mem)
     MEM.z<-MEM/MEM.se
-    P.MEM<-2*(pnorm(-abs(MEM.z)))
+    P.MEM<-2*(stats::pnorm(-abs(MEM.z)))
 
-    MEM<-matrix(c(MEM,MEM.se,MEM.z,P.MEM),nr=1,nc=4)
+    MEM<-matrix(c(MEM,MEM.se,MEM.z,P.MEM),nrow=1,ncol=4)
     colnames(MEM)<-c("MEM","Delta SE","Z","P")
     rownames(MEM)<-var1
     MEM<-signif(MEM,digits=5)
@@ -102,7 +102,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
           variance.ame1<-Jac%*%vc%*%t(Jac)
           MEM1.se<-sqrt(variance.ame1)
           MEM1.z<-MEM1/MEM1.se
-          P.MEM1<-2*(pnorm(-abs(MEM1.z)))
+          P.MEM1<-2*(stats::pnorm(-abs(MEM1.z)))
 
           MEM.fun<-function(theta){
 
@@ -117,10 +117,10 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
           variance.ame2<-Jac%*%vc%*%t(Jac)
           MEM2.se<-sqrt(variance.ame2)
           MEM2.z<-MEM2/MEM2.se
-          P.MEM2<-2*(pnorm(-abs(MEM2.z)))
+          P.MEM2<-2*(stats::pnorm(-abs(MEM2.z)))
 
           MEM<-matrix(c(MEM1,MEM1.se,MEM1.z,P.MEM1,
-                        MEM2,MEM2.se,MEM2.z,P.MEM2),nr=2,nc=4,byrow=T)
+                        MEM2,MEM2.se,MEM2.z,P.MEM2),nrow=2,ncol=4,byrow=T)
           colnames(MEM)<-c("MEM","Delta SE","Z","P")
           rownames(MEM)<-c(var1,var2)
           marginal.matrix<-MEM
@@ -140,9 +140,9 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
           variance.inter<-Jac%*%vc%*%t(Jac)
           MEM.se<-sqrt(variance.inter)
           MEM.z<-MEM/MEM.se
-          P.MEM<-2*(pnorm(-abs(MEM.z)))
+          P.MEM<-2*(stats::pnorm(-abs(MEM.z)))
 
-          MEM<-matrix(c(MEM,MEM.se,MEM.z,P.MEM),nr=1,nc=4)
+          MEM<-matrix(c(MEM,MEM.se,MEM.z,P.MEM),nrow=1,ncol=4)
           colnames(MEM)<-c("MEM","Delta SE","Z","P")
           rownames(MEM)<-inter
           message("NOTE: Nodematch is an interaction, but it is not a product term (e.g., inter!=var1*var2). Z statistics in summary(ergm) are unbiased.")
@@ -242,7 +242,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
 
     marginal.matrix[,2]<-MEM.se
     marginal.matrix[,3]<-marginal.matrix[,1]/MEM.se
-    marginal.matrix[,4]<-2*(pnorm(-abs(marginal.matrix[,3])))
+    marginal.matrix[,4]<-2*(stats::pnorm(-abs(marginal.matrix[,3])))
     marginal.matrix[,5]<-length(p)
 
 
@@ -266,7 +266,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
 
       df<-marginal.matrix[j,5]-length(theta)
       z.DCR<-(second.diffs.mat[j,1])/diff.se
-      P.DCR<-2*pnorm(-abs(z.DCR))
+      P.DCR<-2*stats::pnorm(-abs(z.DCR))
 
       second.diffs.mat[j,2]<-diff.se
       second.diffs.mat[j,3]<-z.DCR
@@ -279,8 +279,6 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
     marginal.matrix<-signif(marginal.matrix,digits=5)
     second.diffs.mat<-signif(second.diffs.mat,digits=5)
 
-    if(!is.na(pmatch("absdiff",inter))) message("Note that the marginal effect is the absolute difference from the var 1 mean.\nNegative values indicate that as the absolute difference between the var 2 value and the var 1 mean\nincreases, the tie probability declines.")
-
 
     if(length(at.2)==2){
       DCR<-list(second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))])
@@ -289,9 +287,9 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
     }else{
 
       #use absolute t value in case of extreme negatives or positives
-      summary.output<-matrix(c(mean(second.diffs.mat[,1]),mean(abs(second.diffs.mat[,3])),NA),nr=1,ncol=3)
+      summary.output<-matrix(c(mean(second.diffs.mat[,1]),mean(abs(second.diffs.mat[,3])),NA),nrow=1,ncol=3)
       colnames(summary.output)<-c("Mean Second diff.","Mean |Z|", "P")
-      summary.output[1,3]<-2*pnorm(abs(summary.output[1,2]),lower.tail = F)
+      summary.output[1,3]<-2*stats::pnorm(abs(summary.output[1,2]),lower.tail = F)
       summary.output<-signif(summary.output,digits=5)
 
       DCR<-list(summary.output,second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))])

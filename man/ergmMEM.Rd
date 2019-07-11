@@ -90,13 +90,12 @@ sex.inter<-ergm.MEM(my.ergm,"nodeifactor.sex.2","nodeofactor.sex.2","nodematch.s
 grade.inter<-ergm.MEM(my.ergm,"nodeicov.grade","nodeocov.grade","absdiff.grade",at.2=c(9,12))
 
 ##when moderator changes from mean to mean +sd
-  #compute means/sd in dyad sample--will not usually be necessary for exogenous covariates,     #but necessary for endogenous model terms
-
 tie.probs<-edge.prob2(my.ergm)
 m<-mean(tie.probs$nodeocov.grade)
 m.sd<-m+sd(tie.probs$nodeocov.grade)
 
-grade.inter.at.means<-ergm.MEM(my.ergm,"nodeicov.grade","nodeocov.grade","absdiff.grade",at.2=c(m,m.sd))
+grade.inter.at.means<-ergm.MEM(my.ergm,"nodeicov.grade","nodeocov.grade",
+                            "absdiff.grade",at.2=c(m,m.sd))
 
 
 ###main effects for all model covariates

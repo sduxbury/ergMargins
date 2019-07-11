@@ -107,7 +107,8 @@ my.ergm4<-ergm(faux.mesa.high~edges+
                  nodematch("Race")+
                  gwdsp(1,fixed=TRUE)+
                  gwesp(.5,fixed=TRUE),
-               control = control.ergm(MCMC.samplesize=5000), #increase MC sample to facilitate convergence
+                 #increase MC sample to facilitate convergence
+               control = control.ergm(MCMC.samplesize=5000),
                constraints = ~bd(maxout=5)
 )
 

@@ -32,11 +32,11 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
   start.drops<-ncol(dyad.mat)-5
   dyad.mat<-dyad.mat[,-c(start.drops:ncol(dyad.mat))]
   vc <- stats::vcov(model)
-  theta<-coef(model)
+  theta<-stats::coef(model)
   ##handle curved ergms by removing decay parameter
   #note that the micro-level change statistics are already properly weighted,
   #so decay term is not needed for predictions
-  if(is.curved(model)){
+  if(ergm::is.curved(model)){
     curved.term<-vector(length=length(model$etamap$curved))
     for(i in 1:length(model$etamap$curved)){
       curved.term[i]<-model$etamap$curved[[i]]$from[2]
@@ -56,7 +56,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
   }
 
   if(length(at.2)>10){
-    Warning("More than 10 values of at.2 exist for the moderating variable. It may take awhile to compute average marginal effects. Consider specifying fewer values of at.2.")
+    warning("More than 10 values of at.2 exist for the moderating variable. It may take awhile to compute average marginal effects. Consider specifying fewer values of at.2.")
   }
 
       ##marginal effects with no interaction
@@ -77,9 +77,9 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
 
     AME.se<-sqrt(variance.ame)
     AME.z<-AME/AME.se
-    P.AME<-2*(pnorm(-abs(AME.z)))
+    P.AME<-2*(stats::pnorm(-abs(AME.z)))
 
-    AME<-matrix(c(AME,AME.se,AME.z,P.AME),nr=1,nc=4)
+    AME<-matrix(c(AME,AME.se,AME.z,P.AME),nrow=1,ncol=4)
     colnames(AME)<-c("AME","Delta SE","Z","P")
     rownames(AME)<-var1
     AME<-signif(AME,digits=5)
@@ -117,7 +117,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
             variance.ame1<-Jac%*%vc%*%t(Jac)
             AME1.se<-sqrt(variance.ame1)
             AME1.z<-AME1/AME1.se
-            P.AME1<-2*(pnorm(-abs(AME1.z)))
+            P.AME1<-2*(stats::pnorm(-abs(AME1.z)))
 
             AME.fun<-function(theta){
 
@@ -132,10 +132,10 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
             variance.ame2<-Jac%*%vc%*%t(Jac)
             AME2.se<-sqrt(variance.ame2)
             AME2.z<-AME2/AME2.se
-            P.AME2<-2*(pnorm(-abs(AME2.z)))
+            P.AME2<-2*(stats::pnorm(-abs(AME2.z)))
 
             AME<-matrix(c(AME1,AME1.se,AME1.z,P.AME1,
-                        AME2,AME2.se,AME2.z,P.AME2),nr=2,nc=4,byrow=T)
+                        AME2,AME2.se,AME2.z,P.AME2),nrow=2,ncol=4,byrow=T)
             colnames(AME)<-c("AME","Delta SE","Z","P")
             rownames(AME)<-c(var1,var2)
             marginal.matrix<-AME
@@ -155,9 +155,9 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
             variance.inter<-Jac%*%vc%*%t(Jac)
             AME.se<-sqrt(variance.inter)
             AME.z<-AME/AME.se
-            P.AME<-2*(pnorm(-abs(AME.z)))
+            P.AME<-2*(stats::pnorm(-abs(AME.z)))
 
-           AME<-matrix(c(AME,AME.se,AME.z,P.AME),nr=1,nc=4)
+           AME<-matrix(c(AME,AME.se,AME.z,P.AME),nrow=1,ncol=4)
             colnames(AME)<-c("AME","Delta SE","Z","P")
             rownames(AME)<-inter
             message("NOTE: Nodematch is an interaction, but it is not a product term (e.g., inter!=var1*var2). Z statistics in summary(ergm) are unbiased.")
@@ -260,7 +260,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
 
       marginal.matrix[,2]<-AME.se
       marginal.matrix[,3]<-marginal.matrix[,1]/AME.se
-      marginal.matrix[,4]<-2*(pnorm(-abs(marginal.matrix[,3])))
+      marginal.matrix[,4]<-2*(stats::pnorm(-abs(marginal.matrix[,3])))
       marginal.matrix[,5]<-length(p)
 
       if(length(at.2)==1){
@@ -290,7 +290,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
 
         df<-marginal.matrix[j,5]-length(theta)
         z.ADC<-(second.diffs.mat[j,1])/diff.se
-        P.ADC<-2*pnorm(-abs(z.ADC))
+        P.ADC<-2*stats::pnorm(-abs(z.ADC))
 
         second.diffs.mat[j,2]<-diff.se
         second.diffs.mat[j,3]<-z.ADC
@@ -320,9 +320,9 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
       }else{
 
         #use absolute t value in case of extreme negatives or positives
-      summary.output<-matrix(c(mean(second.diffs.mat[,1]),mean(abs(second.diffs.mat[,3])),NA),nr=1,ncol=3)
+      summary.output<-matrix(c(mean(second.diffs.mat[,1]),mean(abs(second.diffs.mat[,3])),NA),nrow=1,ncol=3)
       colnames(summary.output)<-c("Mean Second diff.","Mean |Z|", "P")
-      summary.output[1,3]<-2*pnorm(abs(summary.output[1,2]),lower.tail = F)
+      summary.output[1,3]<-2*stats::pnorm(abs(summary.output[1,2]),lower.tail = F)
       summary.output<-signif(summary.output,digits=5)
 
       if(return.dydx==F){

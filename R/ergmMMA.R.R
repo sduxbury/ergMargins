@@ -23,12 +23,12 @@ ergm.mma<-function(restricted.model,full.model,direct.effect,mediator){
     ###indirect effect
 
     mma.me<-tot.AME[1,1]-p.AME[1,1]
-    cov.ame<-2*cor(p.dydx,tot.dydx)*tot.AME[,2]*p.AME[,2]
+    cov.ame<-2*stats::cor(p.dydx,tot.dydx)*tot.AME[,2]*p.AME[,2]
     mma.se<-sqrt(tot.AME[,2]^2+p.AME[,2]^2-cov.ame)
     mma.z<-mma.me/mma.se
-    p.mma<-2*pnorm(-abs(mma.z))
+    p.mma<-2*stats::pnorm(-abs(mma.z))
 
-  ind<-matrix(signif(c(mma.me,mma.se,mma.z,p.mma),digits=5),nr=1,nc=4)
+  ind<-matrix(signif(c(mma.me,mma.se,mma.z,p.mma),digits=5),nrow=1,ncol=4)
   colnames(ind)<-colnames(tot.AME)
    if(length(mediator)>1) {
     mediator<-paste(mediator,collapse=", ")}

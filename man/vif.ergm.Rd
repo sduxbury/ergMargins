@@ -26,15 +26,8 @@ Duxbury, Scott W. 2018. "Diagnosing Multicollinearity in Exponential Random Grap
 \author{
 Scott W. Duxbury, PhD Candidate, The Ohio State University, Department of Sociology.
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
 set.seed(21093)
 
