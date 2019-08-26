@@ -21,7 +21,7 @@
 #standard errors are computed using the delta method.
 
 
-ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
+ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=FALSE){
 
 
   ##get edge probabilities
@@ -44,7 +44,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
 
   }
   #create marginal effects
-  dyad.means<-colMeans(dyad.mat,na.rm=T)
+  dyad.means<-colMeans(dyad.mat,na.rm=TRUE)
   p<-1/(1+exp(-dyad.means%*%theta))
 
 
@@ -63,7 +63,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
       tmp$coeffcients<-theta
       ME.ergm<-sapply(names(theta),function(x)
         (p*(1-p)*theta[var1]))
-      mean(ME.ergm,na.rm = T)}
+      mean(ME.ergm,na.rm = TRUE)}
 
     MEM<-MEM.fun(theta)
     Jac<-numDeriv::jacobian(MEM.fun,theta)
@@ -95,7 +95,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
             tmp$coeffcients<-theta
             ME.ergm<-sapply(names(theta),function(x)
               (p*(1-p)*theta[var1]))
-            mean(ME.ergm,na.rm = T)}
+            mean(ME.ergm,na.rm = TRUE)}
 
           MEM1<-MEM.fun(theta)
           Jac<-numDeriv::jacobian(MEM.fun,theta)
@@ -110,7 +110,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
             tmp$coeffcients<-theta
             ME.ergm<-sapply(names(theta),function(x)
               (p*(1-p)*theta[var2]))
-            mean(ME.ergm,na.rm = T)}
+            mean(ME.ergm,na.rm = TRUE)}
 
           MEM2<-MEM.fun(theta)
           Jac<-numDeriv::jacobian(MEM.fun,theta)
@@ -120,7 +120,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
           P.MEM2<-2*(stats::pnorm(-abs(MEM2.z)))
 
           MEM<-matrix(c(MEM1,MEM1.se,MEM1.z,P.MEM1,
-                        MEM2,MEM2.se,MEM2.z,P.MEM2),nrow=2,ncol=4,byrow=T)
+                        MEM2,MEM2.se,MEM2.z,P.MEM2),nrow=2,ncol=4,byrow=TRUE)
           colnames(MEM)<-c("MEM","Delta SE","Z","P")
           rownames(MEM)<-c(var1,var2)
           marginal.matrix<-MEM
@@ -133,7 +133,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
             tmp$coeffcients<-theta
             ME.ergm<-sapply(names(theta),function(x)
               (p*(1-p)*theta[inter]))
-            mean(ME.ergm,na.rm = T)}
+            mean(ME.ergm,na.rm = TRUE)}
 
           MEM<-MEM.fun(theta)
           Jac<-numDeriv::jacobian(MEM.fun,theta)
@@ -166,11 +166,11 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
 
       #check whether self interaction
     if(var1==var2){
-      self.int<-T
+      self.int<-TRUE
       var2<-paste(var1,".mod")
       dyad.means[var2]<-dyad.means[var1]
     }else{
-      self.int<-F
+      self.int<-FALSE
     }
 
     ##marginal effects for interactions
@@ -188,7 +188,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
       if(!is.na(pmatch("absdiff",inter))){
         dyad.submeans[inter]<-abs(dyad.submeans[var1]-dyad.submeans[var2])
 
-        if(self.int==T){
+        if(self.int==TRUE){
           dyad.submeans<-dyad.submeans[!names(dyad.submeans)%in%var2]
         }
           p<-1/(1+exp(-dyad.submeans%*%theta))
@@ -204,13 +204,13 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
           tmp$coeffcients<-theta
           ME.ergm<-sapply(names(theta),function(x)
             (p*(1-p)*(theta[var1]+(theta[inter]*at.diffs))))
-          mean(ME.ergm,na.rm = T)}
+          mean(ME.ergm,na.rm = TRUE)}
 
       }else{
 
         #marginal effects for product terms
         dyad.submeans[inter]<-dyad.submeans[var1]*dyad.submeans[var2]
-        if(self.int==T){
+        if(self.int==TRUE){
           dyad.submeans<-dyad.submeans[,!names(dyad.submeans)%in%var2]
         }
 
@@ -222,7 +222,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
           tmp$coeffcients<-theta
           ME.ergm<-sapply(names(theta),function(x)
             (p*(1-p)*(theta[var1]+(theta[inter]*at.2[[i]]))))
-          mean(ME.ergm,na.rm = T)}
+          mean(ME.ergm,na.rm = TRUE)}
       }
 
       MEM<-MEM.fun(theta)
@@ -289,7 +289,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=F){
       #use absolute t value in case of extreme negatives or positives
       summary.output<-matrix(c(mean(second.diffs.mat[,1]),mean(abs(second.diffs.mat[,3])),NA),nrow=1,ncol=3)
       colnames(summary.output)<-c("Mean Second diff.","Mean |Z|", "P")
-      summary.output[1,3]<-2*stats::pnorm(abs(summary.output[1,2]),lower.tail = F)
+      summary.output[1,3]<-2*stats::pnorm(abs(summary.output[1,2]),lower.tail = FALSE)
       summary.output<-signif(summary.output,digits=5)
 
       DCR<-list(summary.output,second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))])

@@ -22,7 +22,7 @@
 #standard errors are computed using the delta method.
 
 
-ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, return.at.2=F){
+ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE, return.at.2=FALSE){
 
 
   ##get edge probabilities
@@ -68,7 +68,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
         tmp$coeffcients<-theta
         ME.ergm<-sapply(names(theta),function(x)
           (p*(1-p)*theta[var1]))
-        mean(ME.ergm,na.rm = T)}
+        mean(ME.ergm,na.rm = TRUE)}
 
     AME<-AME.fun(theta)
     Jac<-numDeriv::jacobian(AME.fun,theta)
@@ -84,7 +84,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
     rownames(AME)<-var1
     AME<-signif(AME,digits=5)
 
-    if(return.dydx==T){
+    if(return.dydx==TRUE){
       dydx<-sapply(names(theta),function(x)
         (p*(1-p)*theta[var1]))
         AME<-list(AME,dydx[,var1])
@@ -110,7 +110,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
             tmp$coeffcients<-theta
             ME.ergm<-sapply(names(theta),function(x)
               (p*(1-p)*theta[var1]))
-            mean(ME.ergm,na.rm = T)}
+            mean(ME.ergm,na.rm = TRUE)}
 
             AME1<-AME.fun(theta)
             Jac<-numDeriv::jacobian(AME.fun,theta)
@@ -125,7 +125,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
             tmp$coeffcients<-theta
             ME.ergm<-sapply(names(theta),function(x)
               (p*(1-p)*theta[var2]))
-            mean(ME.ergm,na.rm = T)}
+            mean(ME.ergm,na.rm = TRUE)}
 
             AME2<-AME.fun(theta)
             Jac<-numDeriv::jacobian(AME.fun,theta)
@@ -135,7 +135,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
             P.AME2<-2*(stats::pnorm(-abs(AME2.z)))
 
             AME<-matrix(c(AME1,AME1.se,AME1.z,P.AME1,
-                        AME2,AME2.se,AME2.z,P.AME2),nrow=2,ncol=4,byrow=T)
+                        AME2,AME2.se,AME2.z,P.AME2),nrow=2,ncol=4,byrow=TRUE)
             colnames(AME)<-c("AME","Delta SE","Z","P")
             rownames(AME)<-c(var1,var2)
             marginal.matrix<-AME
@@ -148,7 +148,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
             tmp$coeffcients<-theta
             ME.ergm<-sapply(names(theta),function(x)
               (p*(1-p)*theta[inter]))
-            mean(ME.ergm,na.rm = T)}
+            mean(ME.ergm,na.rm = TRUE)}
 
             AME<-AME.fun(theta)
             Jac<-numDeriv::jacobian(AME.fun,theta)
@@ -180,11 +180,11 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
       }
 
       if(var1==var2){
-        self.int<-T
+        self.int<-TRUE
         var2<-paste(var1,".mod")
         dyad.mat[,var2]<-dyad.mat[,var1]
       }else{
-        self.int<-F
+        self.int<-FALSE
       }
 
       ##marginal effects for interactions
@@ -202,7 +202,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
         if(!is.na(pmatch("absdiff",inter))){
           dyad.submat[,inter]<-abs(dyad.submat[,var1]-dyad.submat[,var2])
           if(i ==1){message(paste("Note that marginal effects for absolute differences are computed holding",var1,"at its mean. The mean for",var1,"is", mean(dyad.mat[,var1])))}
-          if(self.int==T){
+          if(self.int==TRUE){
             dyad.submat<-dyad.submat[,!colnames(dyad.submat)%in%var2]
           }
            p<-1/(1+exp(-(apply(dyad.submat,1,function(x) t(x)%*%theta))))
@@ -215,7 +215,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
             tmp$coeffcients<-theta
             ME.ergm<-sapply(names(theta),function(x)
               (p*(1-p)*(theta[var1]+(theta[inter]*at.diffs))))
-            mean(ME.ergm,na.rm = T)}
+            mean(ME.ergm,na.rm = TRUE)}
 
           dydx.list[[i]]<-sapply(names(theta),function(x)
             (p*(1-p)*(theta[var1]+(theta[inter]*at.diffs))))
@@ -225,7 +225,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
 
             #marginal effects for product terms
           dyad.submat[,inter]<-dyad.submat[,var1]*dyad.submat[,var2]
-          if(self.int==T){
+          if(self.int==TRUE){
             dyad.submat<-dyad.submat[,!colnames(dyad.submat)%in%var2]
           }
             p<-1/(1+exp(-(apply(dyad.submat,1,function(x) t(x)%*%theta))))
@@ -237,7 +237,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
           tmp$coeffcients<-theta
           ME.ergm<-sapply(names(theta),function(x)
             (p*(1-p)*(theta[var1]+(theta[inter]*at.2[i]))))
-          mean(ME.ergm,na.rm = T)}
+          mean(ME.ergm,na.rm = TRUE)}
 
          dydx.list[[i]]<-sapply(names(theta),function(x)
            (p*(1-p)*(theta[var1]+(theta[inter]*at.2[i]))))
@@ -266,11 +266,11 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
       if(length(at.2)==1){
         AME<-t(as.matrix(marginal.matrix[,-c(5)]))
         rownames(AME)<-rownames(marginal.matrix)
-        if(return.dydx==T){
+        if(return.dydx==TRUE){
           AME<-list(AME,dydx.list)
           names(AME)<-c("Average Marginal effects","Marginal effects")
         }
-        if(return.at.2==T){
+        if(return.at.2==TRUE){
           AME<-list(main.results=AME,
                     at.2=at.2)
         }
@@ -305,13 +305,13 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
 
       if(length(at.2)==2){
 
-        if(return.dydx==F){
+        if(return.dydx==FALSE){
         ADC<-list(second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))])
         names(ADC)<-c("Second differences","Average Marginal effects")}else{
           ADC<-list(second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))],dydx.list)
           names(ADC)<-c("Second differences","Average Marginal effects","Marginal effects")
         }
-        if(return.at.2==T){
+        if(return.at.2==TRUE){
           ADC<-list(ADC,at.2)
           names(ADC)<-c("main.results","at.2")
         }
@@ -322,17 +322,17 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F, ret
         #use absolute t value in case of extreme negatives or positives
       summary.output<-matrix(c(mean(second.diffs.mat[,1]),mean(abs(second.diffs.mat[,3])),NA),nrow=1,ncol=3)
       colnames(summary.output)<-c("Mean Second diff.","Mean |Z|", "P")
-      summary.output[1,3]<-2*stats::pnorm(abs(summary.output[1,2]),lower.tail = F)
+      summary.output[1,3]<-2*stats::pnorm(abs(summary.output[1,2]),lower.tail = FALSE)
       summary.output<-signif(summary.output,digits=5)
 
-      if(return.dydx==F){
+      if(return.dydx==FALSE){
       ADC<-list(summary.output,second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))])
       names(ADC)<-c("Aggregate output","Second differences","Average Marginal effects")}else{
 
       ADC<-list(summary.output,second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))],dydx.list)
       names(ADC)<-c("Aggregate output","Second differences","Average Marginal effects","Marginal effects")
       }
-      if(return.at.2==T){
+      if(return.at.2==TRUE){
       ADC<-list(ADC,at.2)
       names(ADC)<-c("main.results","at.2")
       }

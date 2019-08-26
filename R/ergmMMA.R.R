@@ -9,11 +9,11 @@
 
 ergm.mma<-function(restricted.model,full.model,direct.effect,mediator){
 
-  tot.AME<-ergm.AME(restricted.model,direct.effect,return.dydx=T)
+  tot.AME<-ergm.AME(restricted.model,direct.effect,return.dydx=TRUE)
   tot.dydx<-tot.AME$dydx
   tot.AME<-tot.AME$AME
 
-  p.AME<-ergm.AME(full.model,direct.effect,return.dydx=T)
+  p.AME<-ergm.AME(full.model,direct.effect,return.dydx=TRUE)
   p.dydx<-p.AME$dydx
   p.AME<-p.AME$AME
 

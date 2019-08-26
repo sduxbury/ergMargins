@@ -5,10 +5,10 @@
 %%  ~~function to do ... ~~
 }
 \description{
-ergm.mod.mma is a function to asssess mediated moderation in ERGM using average marginal effects (AME), e.g. when the main effect is a part of an interaction. If joint=T, the function computes the total, partial, and indirect effects for all parts of the interaction. If int.eff=T, the function computes the same values, but only for the moderating effect (e.g., only the moderated portion). Both joint=T and int.eff=T can be set simultaneously. }
+ergm.mod.mma is a function to asssess mediated moderation in ERGM using average marginal effects (AME), e.g. when the main effect is a part of an interaction. If joint=TRUE, the function computes the total, partial, and indirect effects for all parts of the interaction. If int.eff=TRUE, the function computes the same values, but only for the moderating effect (e.g., only the moderated portion). Both joint=TRUE and int.eff=TRUE can be set simultaneously. }
 \usage{
 ergm.mod.mma(restricted.model,full.model,var1, var2, inter,mediator,
-                   at.2=NULL,joint=F,int.eff=F)}
+                   at.2=NULL,joint=FALSE,int.eff=FALSE)}
 %- maybe also 'usage' for other objects documented here.
 \arguments{
 
@@ -27,15 +27,15 @@ ergm.mod.mma(restricted.model,full.model,var1, var2, inter,mediator,
 
 }
 \details{
-ergm.mod.mma conducts mediation analyses using marginal effects when the main effect is part of an interaction. There are three ways to construe the mediating pathways. First, a researcher may be interested in whether a mediator variable mediates the main effect in an interaction, net of the moderator. To assess this, use ergm.AME with var2 and inter specified, setting at.2=0. This will compute the AME when the effect of the moderator is zero, which is the main effect. Second, a researcher may be interested in the total or composite effect of an interaction, including the moderator and main effect. To assess this, set joint=T. This computes the indirect effect for the AME at every level of at.2. The third scenario is when a researcher is interested in only the interaction effect. The interaction effect is defined here as the difference in AMEs between levels of a moderator (e.g., levels of at.2). Thus, the indirect effect is the third difference, or the difference in second differences between the restricted and full models. An example is whether triad closure mediates the effect of matched nodal characteristics, net of the main effect for nodal attributes (e.g., net of nodefactor/nodecov). To assess this, set int.eff=T. Both joint=T and int.eff=T can be specified at the same time, but at least one must be specified for the function to work.
+ergm.mod.mma conducts mediation analyses using marginal effects when the main effect is part of an interaction. There are three ways to construe the mediating pathways. First, a researcher may be interested in whether a mediator variable mediates the main effect in an interaction, net of the moderator. To assess this, use ergm.mma for var1. This will compute the AME when the effect of the moderator is zero. Second, a researcher may be interested in the total or composite effect of an interaction, including the moderator and main effect. To assess this, set joint=TRUE. This computes the indirect effect for the AME at every level of at.2. The third scenario is when a researcher is interested in only the interaction effect. The interaction effect is defined here as the difference in AMEs between levels of a moderator (e.g., levels of at.2). Thus, the indirect effect is the third difference, or the difference in second differences between the restricted and full models. An example is whether triad closure mediates the effect of matched nodal characteristics, net of the main effect for nodal attributes (e.g., net of nodefactor/nodecov). To assess this, set int.eff=TRUE. Both joint=TRUE and int.eff=TRUE can be specified at the same time, but at least one must be specified for the function to work.
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
-Returns a list object containing the total, partial, and indirect AMEs at each level of at.2. If joint=T is specified, returns:
+Returns a list object containing the total, partial, and indirect AMEs at each level of at.2. If joint=TRUE is specified, returns:
 \item{marginal.effects}{a list containing the indirect, total, and partial effects for each level of at.2}
 \item{summary.stats}{a table reporting the mean second difference and mean absolute Wald statistic for the indirect AMEs.}
 
-If int.eff=T is specified, returns a list with elements:
+If int.eff=TRUE is specified, returns a list with elements:
 \item{partial.marginal.effects}{the marginal effects for each level of at.2 in the full model.}
 \item{total.marginal.effects}{the marginal effects for each level of at.2 in the restricted model.}
 \item{partial.second.diffs}{the second differences between levels of at.2 in the full model.}
@@ -43,9 +43,9 @@ If int.eff=T is specified, returns a list with elements:
 \item{third.diffs}{the difference in second differences between the partial and full models.}
 \item{summary.output}{the mean third difference and mean absolute Wald statistic for the third differences.}
 
-If both int.eff=T and joint=T, returns a list with elements:
-\item{joint.effect}{a list containing all elements when joint=T}
-\item{moderator.effect}{a list containing all elements when int.eff=T.}
+If both int.eff=TRUE and joint=TRUE, returns a list with elements:
+\item{joint.effect}{a list containing all elements when joint=TRUE}
+\item{moderator.effect}{a list containing all elements when int.eff=TRUE.}
 %%  ~Describe the value returned
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
@@ -72,7 +72,36 @@ Scott Duxbury, PhD Candidate, the Ohio State University, Department of Sociology
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
+\dontshow{
+require(ergm)
 
+
+set.seed(21093)
+a1<-network::as.network(matrix(c(rbinom(10, 1,.3),
+                                 rbinom(10, 1,.3),
+                                 rbinom(10, 1,.3),
+                                 rbinom(10, 1,.3),
+                                 rbinom(10, 1,.3),
+                                 rbinom(10, 1,.3),
+                                 rbinom(10, 1,.3),
+                                 rbinom(10, 1,.3),
+                                 rbinom(10, 1,.3),
+                                 rbinom(10, 1,.3)),
+                               nrow=10,ncol=10))
+v1<-rbinom(10,1,.3)
+v2<-rbinom(10,1,.3)
+
+network::set.vertex.attribute(a1,"var.1",v1)
+network::set.vertex.attribute(a1,"var.2",v2)
+
+
+a<-ergm(a1~edges+nodeifactor("var.1")+nodematch("var.1")+nodeofactor("var.1"))
+ab<-ergm(a1~edges+nodeifactor("var.1")+nodematch("var.1")+nodeofactor("var.1")+
+           nodeifactor("var.2"))
+
+ergm.mod.mma(a,ab,var1="nodeifactor.var.1.1",var2="nodeofactor.var.1.1",
+            inter="nodematch.var.1",mediator="nodeifactor.var.2.1",int.eff=TRUE)
+}
 \donttest{
 
 library(ergm)

@@ -8,7 +8,8 @@ ERGM function to compute average marginal effects for main effects or at various
 
 }
 \usage{
-ergm.AME(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F,return.at.2=F)
+ergm.AME(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
+        return.at.2=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -38,7 +39,7 @@ If a moderator is specified, a list is returned with the following elements:
 \item{`Average Marginal Effects`}{is the table of AMEs at each level of at.2. If at.2=NULL, the table contains unique entries for every unique value of at.2.}
 \item{`Second differences`}{is a table containing point estimates, standard errors, and Wald tests for the difference in AMEs between each level of at.2. It has a number of rows equal to length(at.2)-1}
 \item{`Aggregate output`}{is a table of summary statistics when at.2 has length > 2. Reports the mean second difference and mean absolute Wald statistic for the second differences. If at.2 has length < 3, it is not returned}
-\item{`Marginal effects`}{if return.dydx=T, returns the marginal effects (partial derivatives with respect to var1) for each dyad in the ERGM sample space.}
+\item{`Marginal effects`}{if return.dydx=TRUE, returns the marginal effects (partial derivatives with respect to var1) for each dyad in the ERGM sample space.}
 
 }
 \references{
@@ -61,6 +62,29 @@ Syntax is loosely based on the margins package by Thomas Leeper and Stata's marg
 \code{\link[margins]{margins}}
 }
 \examples{
+\dontshow{
+require(ergm)
+
+
+set.seed(21093)
+a1<-network::as.network(matrix(c(rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+             rbinom(10, 1,.3),
+              rbinom(10, 1,.3),
+               rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3)),
+          nrow=10,ncol=10))
+
+network::set.vertex.attribute(a1,"var.1",rbinom(10,1,.3))
+a<-ergm(a1~edges+nodeifactor("var.1")+nodeofactor("var.1"))
+ergm.AME(a,var1="nodeifactor.var.1.1")
+
+}
+
 \donttest{
 library(ergm)
 
@@ -87,7 +111,8 @@ main.eff<-ergm.AME(my.ergm,"mutual")
 sex.inter<-ergm.AME(my.ergm,"nodeifactor.sex.2","nodeofactor.sex.2","nodematch.sex")
 
 ##with moderator at specific values
-grade.inter<-ergm.AME(my.ergm,"nodeicov.grade","nodeocov.grade","absdiff.grade",at.2=c(9,12))
+grade.inter<-ergm.AME(my.ergm,"nodeicov.grade","nodeocov.grade","absdiff.grade",
+            at.2=c(9,12))
 
 ##when moderator changes from mean to mean +sd
 

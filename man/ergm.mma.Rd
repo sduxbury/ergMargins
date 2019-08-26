@@ -40,8 +40,6 @@ Returns a table including the point estimates and standard errors for total, dir
 \references{
 Duxbury, Scott W. "Mediation and Moderation in Statistical Network Models." Working paper.
 
-Barrett, Tyson. "Marginal Mediation: A New Framework for Interpretable Mediation Effects." Dissertation.
-
 Karlson, Kristian Bernt, Holm, Anders, and Richard Breen. 2012. "Comparing Regression Coefficients Between Same-sample Nested Models Using Logit and Probit: A New Method." \emph{Sociological Methodology} 42: 286 - 313.
 }
 \author{
@@ -56,8 +54,35 @@ Note that ergm.mma may have restrictive run times in large networks or high dime
 
 \seealso{
 \code{\link{ergm.AME}}
+\code{\link{ergm.mod.mma}}
+
 }
 \examples{
+
+\dontshow{
+require(ergm)
+
+
+set.seed(21093)
+a1<-network::as.network(matrix(c(rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+             rbinom(10, 1,.3),
+              rbinom(10, 1,.3),
+               rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3)),
+          nrow=10,ncol=10))
+
+network::set.vertex.attribute(a1,"var.1",rbinom(10,1,.3))
+
+a<-ergm(a1~edges+nodeifactor("var.1"))
+ab<-ergm(a1~edges+nodeifactor("var.1")+nodeofactor("var.1"))
+ergm.mma(a,ab,mediator="nodeofactor.var.1.1",
+             direct.effect="nodeifactor.var.1.1")
+}
 \donttest{
 library(ergm)
 

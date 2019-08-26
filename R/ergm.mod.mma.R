@@ -13,16 +13,16 @@
 
 
 ergm.mod.mma<-function(restricted.model,full.model,var1, var2, inter,mediator,
-                   at.2=NULL,joint=F,int.eff=F){
+                   at.2=NULL,joint=FALSE,int.eff=FALSE){
 
 
-  if(joint==F & int.eff==F){
+  if(joint==FALSE & int.eff==FALSE){
     stop("Please specify whether interested in assessing mediation for the total interaction effect, or only the interaction effect. ")
   }
-  if(!is.null(at.2) & joint==F & length(at.2)==1){
+  if(!is.null(at.2) & joint==FALSE & length(at.2)==1){
     stop("Cannot calculate second differences for moderated effect when only 1 level of at.2 is specified. Set joint=T to calculate composite indirect effect.")
   }
-  if(!is.null(at.2) & int.eff==T & length(at.2)==1){
+  if(!is.null(at.2) & int.eff==TRUE & length(at.2)==1){
     message("Cannot calculate second differences for moderated effect when only 1 level of at.2 is specified. Only composite indirect effects will be calculated.")
   }
 
@@ -47,7 +47,7 @@ ergm.mod.mma<-function(restricted.model,full.model,var1, var2, inter,mediator,
     }
 
 
-  tot.AME<-ergm.AME(restricted.model,var1=var1,var2=var2,inter=inter,at.2=at.2,return.dydx=T,return.at.2 = T)
+  tot.AME<-ergm.AME(restricted.model,var1=var1,var2=var2,inter=inter,at.2=at.2,return.dydx=TRUE,return.at.2 = TRUE)
   at.2<-tot.AME[[2]]
   if(length(at.2)>1){
     tot.sec.diff<-tot.AME[[1]]$`Second differences`
@@ -56,7 +56,7 @@ ergm.mod.mma<-function(restricted.model,full.model,var1, var2, inter,mediator,
   tot.AME<-tot.AME[[1]]$`Average Marginal effects`
   t.names<-rownames(tot.AME)
 
-  p.AME<-ergm.AME(full.model,var1=var1,var2=var2,inter=inter,at.2=at.2,return.dydx=T)
+  p.AME<-ergm.AME(full.model,var1=var1,var2=var2,inter=inter,at.2=at.2,return.dydx=TRUE)
   if(length(at.2)>1){
     p.sec.diff<-p.AME$`Second differences`
   }
@@ -91,7 +91,7 @@ ergm.mod.mma<-function(restricted.model,full.model,var1, var2, inter,mediator,
 
 
     #compute total interaction effect
-  if(joint==T){
+  if(joint==TRUE){
   ###indirect effect
 
   mma.me<-tot.AME[,1]-p.AME[,1]
@@ -132,14 +132,14 @@ ergm.mod.mma<-function(restricted.model,full.model,var1, var2, inter,mediator,
 
     out2<-list(summary.stats=out2,
                marginal.effects=out1)
-    if(int.eff==F){
+    if(int.eff==FALSE){
       out<-out2
     }
 
   }
 
     #compute moderator only
-  if(int.eff==T){
+  if(int.eff==TRUE){
     #difference in second difference
   third.diff<-tot.sec.diff[,1]-p.sec.diff[,1]
 
@@ -162,7 +162,7 @@ ergm.mod.mma<-function(restricted.model,full.model,var1, var2, inter,mediator,
   third.diff.p<-2*stats::pnorm(-abs(third.diff.z))
 
   if(length(third.diff)==1){#if there is only 1 third difference, no need for summary statistics
-    third.diffs<-matrix(signif(c(third.diff,third.diff.se,third.diff.z,third.diff.p)),1,4,byrow=T)
+    third.diffs<-matrix(signif(c(third.diff,third.diff.se,third.diff.z,third.diff.p)),1,4,byrow=TRUE)
     colnames(third.diffs)<-c("Third difference","Delta SE","Wald Z","P")
 
     out.list<-list(third.diffs=third.diffs,
@@ -189,12 +189,12 @@ ergm.mod.mma<-function(restricted.model,full.model,var1, var2, inter,mediator,
 
 
      }
-   if(joint==F){
+   if(joint==FALSE){
     out<-out.list
    }
   }
     #if interested in both interaction and joint effects, combine output
-  if(joint==T & int.eff==T){
+  if(joint==TRUE & int.eff==TRUE){
   out<-list(joint.effect=out2,
             moderator.effect=out.list)
   }

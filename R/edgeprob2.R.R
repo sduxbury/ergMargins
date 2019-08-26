@@ -74,7 +74,6 @@ edge.prob2<-function (model, verbose = FALSE)
   cbcoef <- cbind(cf)
   chgstat <- dyads[, 2:(ncol(dyads) - 3)]
   ##handle decay term in curved ergms
-    #since micro level change statistics are already properly scored, simply remove decay term
   if(ergm::is.curved(object)){
     curved.term<-vector(length=length(object$etamap$curved))
     for(i in 1:length(object$etamap$curved)){

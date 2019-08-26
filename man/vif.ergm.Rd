@@ -29,6 +29,26 @@ Scott W. Duxbury, PhD Candidate, The Ohio State University, Department of Sociol
 
 
 \examples{
+\dontshow{
+require(ergm)
+
+set.seed(21093)
+a1<-network::as.network(matrix(c(rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+             rbinom(10, 1,.3),
+              rbinom(10, 1,.3),
+               rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3)),
+          nrow=10,ncol=10))
+
+network::set.vertex.attribute(a1,"var.1",rbinom(10,1,.3))
+a<-ergm(a1~edges+nodeifactor("var.1")+nodeofactor("var.1"))
+vif.ergm(a)
+}
 set.seed(21093)
 
 library(ergm)

@@ -8,7 +8,7 @@ Function to compute marginal effects at means in ERGM.
 ERGM function to compute marginal effects at means for main effects or at various levels of a moderator. Also provides tests of significance for second differences for interaction terms. Syntax similar to margins by Thomas Leeper and Stata margins command. See ergm.AME to compute average marginal effect.
 }
 \usage{
-ergm.MEM(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=F)
+ergm.MEM(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -35,7 +35,7 @@ If var2 and inter=NULL, then a table is returned with the MEM for var1, its stan
 \item{`Marginal effects at means`}{is the table of MEMs at each level of at.2. If at.2=NULL, the table contains unique entries for every unique value of at.2.}
 \item{`Second differences`}{is a table containing point estimates, standard errors, and Wald tests for the difference in MEMs between each level of at.2. It has a number of rows equal to length(at.2)-1}
 \item{`Aggregate output`}{is a table of summary statistics when at.2 has length > 2. Reports the mean second difference and mean absolute Wald statistic for the second differences. If at.2 has length<3, it is not returned}
-\item{`Marginal effects`}{if return.dydx=T, returns the marginal effects (partial derivatives with respect to var1) for each dyad in the ERGM sample space.}
+\item{`Marginal effects`}{if return.dydx=TRUE, returns the marginal effects (partial derivatives with respect to var1) for each dyad in the ERGM sample space.}
 
 }
 \references{
@@ -58,6 +58,29 @@ Syntax is loosely based on the margins package by Thomas Leeper and Stata's marg
 \code{\link[margins]{margins}}
 }
 \examples{
+\dontshow{
+require(ergm)
+
+
+set.seed(21093)
+a1<-network::as.network(matrix(c(rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+             rbinom(10, 1,.3),
+              rbinom(10, 1,.3),
+               rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3),
+            rbinom(10, 1,.3)),
+          nrow=10,ncol=10))
+
+network::set.vertex.attribute(a1,"var.1",rbinom(10,1,.3))
+
+a<-ergm(a1~edges+nodeifactor("var.1")+nodeofactor("var.1"))
+ergm.MEM(a,var1="nodeifactor.var.1.1")
+
+}
 \donttest{
 
 library(ergm)
@@ -85,7 +108,8 @@ main.eff<-ergm.MEM(my.ergm,"mutual")
 sex.inter<-ergm.MEM(my.ergm,"nodeifactor.sex.2","nodeofactor.sex.2","nodematch.sex")
 
 ##with moderator at specific levels
-grade.inter<-ergm.MEM(my.ergm,"nodeicov.grade","nodeocov.grade","absdiff.grade",at.2=c(9,12))
+grade.inter<-ergm.MEM(my.ergm,"nodeicov.grade","nodeocov.grade","absdiff.grade",
+          at.2=c(9,12))
 
 ##when moderator changes from mean to mean +sd
 tie.probs<-edge.prob2(my.ergm)
