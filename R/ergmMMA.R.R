@@ -17,6 +17,17 @@ ergm.mma<-function(restricted.model,full.model,direct.effect,mediator){
   p.dydx<-p.AME$dydx
   p.AME<-p.AME$AME
 
+    #ensure equal dimensions. Typically only necessary in large networks.
+  if(length(tot.dydx)!=length(p.dydx)){
+
+    if(length(tot.dydx)<length(p.dydx)){
+      p.dydx<-p.dydx[1:length(tot.dydx)]
+    }else{
+      tot.dydx<-tot.dydx[1:length(p.dydx)]
+    }
+
+  }
+
   rownames(tot.AME)<-paste("total effect:",rownames(tot.AME))
   rownames(p.AME)<-paste("partial effect:",rownames(p.AME))
 

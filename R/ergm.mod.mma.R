@@ -74,6 +74,16 @@ ergm.mod.mma<-function(restricted.model,full.model,var1, var2, inter,mediator,
     ind.AME[1,1]<-tot.AME[1,1]-p.AME[1,1]
 
       #compute covariance for all indirect effects
+    if(length(tot.dydx[[1]][,1])!=length(p.dydx[[1]][,1])){
+
+      if(length(tot.dydx[[1]][,1])<length(p.dydx[[1]][,1])){
+        p.dydx[[1]][,1]<-p.dydx[[1]][,1][1:length(tot.dydx[[1]][,1])]
+      }else{
+        tot.dydx[[1]][,1]<-tot.dydx[[1]][,1][1:length(p.dydx[[1]][,1])]
+      }
+
+    }
+
       cov.ame<-stats::cor(p.dydx[[1]][,1],tot.dydx[[1]][,1])
       cov.ame<-2*cov.ame*tot.AME[1,2]*p.AME[1,2]
 
@@ -98,6 +108,19 @@ ergm.mod.mma<-function(restricted.model,full.model,var1, var2, inter,mediator,
   cov.ame<-list()
 
   for(i in 1:length(p.dydx)){
+
+      #ensure correct equvalient sample spaces
+    if(nrow(tot.dydx[[i]])!=nrow(p.dydx[[i]])){
+
+      if(nrow(tot.dydx[[i]])<nrow(p.dydx[[i]])){
+        p.dydx[[i]]<-p.dydx[[i]][1:nrow(tot.dydx[[i]])]
+      }else{
+        tot.dydx[[i]]<-tot.dydx[[i]][1:nrow(p.dydx[[i]])]
+      }
+
+    }
+
+
     #compute covariance for all indirect effects
   cov.ame[[i]]<-stats::cor(p.dydx[[i]],tot.dydx[[i]])[1,1]
   cov.ame[[i]]<-2*cov.ame[[i]]*tot.AME[i,2]*p.AME[i,2]
@@ -152,6 +175,19 @@ ergm.mod.mma<-function(restricted.model,full.model,var1, var2, inter,mediator,
       k<-i+1
       tot.diff.list[[i]]<-tot.dydx[[k]]-tot.dydx[[i]]
       p.diff.list[[i]]<-p.dydx[[k]]-p.dydx[[i]]
+
+      #ensure equivalent sample spaces
+      if(nrow(tot.diff.list[[i]])!=nrow(p.diff.list[[i]])){
+
+        if(nrow(tot.diff.list[[i]])<nrow(p.diff.list[[i]])){
+          p.diff.list[[i]]<-p.diff.list[[i]][1:nrow(tot.diff.list[[i]])]
+        }else{
+          tot.diff.list[[i]]<-tot.diff.list[[i]][1:nrow(p.diff.list[[i]])]
+        }
+
+      }
+
+
       cov.list[i]<-stats::cor(tot.diff.list[[i]],p.diff.list[[i]])[1,1]
 
     }

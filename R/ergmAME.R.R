@@ -46,7 +46,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
 
   }
 
-  if(nrow(dyad.mat)>1e07){
+  if(nrow(dyad.mat)>1e06){
     message("There are over 1 million dyads in the ERGM sample space. Variance estimates for marginal effects may take a moment to compute.")
   }
 
