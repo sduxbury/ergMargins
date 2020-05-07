@@ -6,6 +6,17 @@
 #' @param verbose Determines whether to print updates as the function progresses. Appealing in large networks.
 #' edge.prob2()
 
+getformula<-function(x){x@formula}
+setMethod("getformula", signature = className("btergm", "btergm"),
+          definition = function(x) x@formula)
+
+setMethod("getformula", signature = className("mtergm", "btergm"),
+          definition = function(x) x@formula)
+
+setMethod("getformula", signature = className("ergm", "ergm"),
+          definition = function(x) x$formula)
+
+
 edge.prob2<-function (model, verbose = FALSE)
 {
   object<-model
@@ -19,7 +30,19 @@ edge.prob2<-function (model, verbose = FALSE)
     stop(paste("The edgeprob function is only applicable to ergm, btergm, and",
                "mtergm objects."))
   }
-  l <- tergmprepare2(formula = btergm::getformula(object), offset = FALSE,
+
+  ##check for duplicated names
+  if(class(object)=="ergm"){
+    if(any(duplicated(model$network%v%"vertex.names"))){
+      stop(paste("Duplicated names detected in network; edgeprob function will fail.",
+                 "Please assign unique vertex names before using edgeprob.",
+                 "Recommended code:",
+                 "model$network%v%'vertex.names'<-1:network.size(model$network)"))
+    }
+  }
+
+
+  l <- tergmprepare2(formula = getformula(object), offset = FALSE,
                     blockdiag = FALSE, verbose = FALSE)
   for (cv in 1:length(l$covnames)) {
     assign(l$covnames[cv], l[[l$covnames[cv]]])
