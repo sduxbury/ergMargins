@@ -34,11 +34,6 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
   vc <- stats::vcov(model)
   theta<-stats::coef(model)
 
-  if(any(names(theta)!=colnames(dyad.mat))){
-       colnames(dyad.mat)<-names(theta) #make sure names align
-  }
-
-
 
   ##handle curved ergms by removing decay parameter
   #note that the micro-level change statistics are already properly weighted,
@@ -52,6 +47,12 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
     vc<-vc[-c(curved.term),-c(curved.term)]
 
   }
+
+
+  if(any(names(theta)!=colnames(dyad.mat))){
+    colnames(dyad.mat)<-names(theta) #make sure names align
+  }
+
 
   if(nrow(dyad.mat)>1e06){
     message("There are over 1 million dyads in the ERGM sample space. Variance estimates for marginal effects may take a moment to compute.")
