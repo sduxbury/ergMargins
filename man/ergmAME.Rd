@@ -43,14 +43,14 @@ If a moderator is specified, a list is returned with the following elements:
 
 }
 \references{
-Duxbury, Scott W. "Mediation and Moderation in Statistical Network Models." Working paper.
+Duxbury, Scott W. Forthcoming. "The Problem of Scaling in Exponential Random Graph Models." \emph{Sociological Methods & Research}.
 
 Long, J. Scott, and Sarah Mustillo. 2018. "Using Predictions and Marginal Effects to Compare Groups in Regression Models for Binary Outcomes." \emph{Sociological Methods and Research}
 
 Mize, Trenton D. 2019. "Best Practices for Estimating, Interpreting, and Presenting Nonlinear Interaction Effects." \emph{Sociological Science}
 }
 \author{
-Duxbury, Scott W. PhD Candidate, the Ohio State University Department of Sociology.
+Scott Duxbury, Assistant Professor, University of North Carolina--Chapel Hill, Department of Sociology.
 }
 \note{
 Syntax is loosely based on the margins package by Thomas Leeper and Stata's margins commands. Currently only available for two-way interactions.}

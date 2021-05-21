@@ -38,12 +38,12 @@ Returns a table including the point estimates and standard errors for total, dir
 
 }
 \references{
-Duxbury, Scott W. "Mediation and Moderation in Statistical Network Models." Working paper.
+Duxbury, Scott W. Forthcoming. "The Problem of Scaling in Exponential Random Graph Models." \emph{Sociological Methods & Research}.
 
 Karlson, Kristian Bernt, Holm, Anders, and Richard Breen. 2012. "Comparing Regression Coefficients Between Same-sample Nested Models Using Logit and Probit: A New Method." \emph{Sociological Methodology} 42: 286 - 313.
 }
 \author{
-Scott Duxbury, PhD Candidate, the Ohio State University, Department of Sociology.
+Scott Duxbury, Assistant Professor, University of North Carolina--Chapel Hill, Department of Sociology.
 }
 \note{
 Note that ergm.mma may have restrictive run times in large networks or high dimensional models.

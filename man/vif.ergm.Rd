@@ -24,7 +24,7 @@ Returns a matrix of VIFs for each model parameter. Higher values indicate that t
 Duxbury, Scott W. 2018. "Diagnosing Multicollinearity in Exponential Random Graph Models" \emph{Sociological Methods and Research.}
 }
 \author{
-Scott W. Duxbury, PhD Candidate, The Ohio State University, Department of Sociology.
+Scott Duxbury, Assistant Professor, University of North Carolina--Chapel Hill, Department of Sociology.
 }
 
 

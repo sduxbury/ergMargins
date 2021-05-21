@@ -53,11 +53,11 @@ If both int.eff=TRUE and joint=TRUE, returns a list with elements:
 %% ...
 }
 \references{
-Duxbury, Scott W. "Mediation and Moderation in Statistical Network Models." Working paper.
+Duxbury, Scott W. Forthcoming. "The Problem of Scaling in Exponential Random Graph Models." \emph{Sociological Methods & Research}.
 %% ~put references to the literature/web site here ~
 }
 \author{
-Scott Duxbury, PhD Candidate, the Ohio State University, Department of Sociology.
+Scott Duxbury, Assistant Professor, University of North Carolina--Chapel Hill, Department of Sociology.
 
 %%  ~~who you are~~
 }

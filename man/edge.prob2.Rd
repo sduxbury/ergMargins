@@ -30,7 +30,7 @@ Returns a dataframe where weach row is a dyad and each column is a term in the m
 }
 
 \author{
-Scott Duxbury PhD candidate Ohio State University,
+Scott Duxbury, Assistant Professor, University of North Carolina--Chapel Hill, Department of Sociology.
 original author is Philip Leifeld at University of Essex.
 }
 

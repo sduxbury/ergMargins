@@ -31,21 +31,37 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
   p<-dyad.mat$probability
   start.drops<-ncol(dyad.mat)-5
   dyad.mat<-dyad.mat[,-c(start.drops:ncol(dyad.mat))]
+
+  if(class(model)=="mtergm"|class(model)=="btergm"){
+    vc <- stats::vcov(model@ergm)
+    vc<-vc[!rownames(vc)%in%"offset(edgecov.offsmat)",!colnames(vc)%in%"offset(edgecov.offsmat)"]
+  }else{
   vc <- stats::vcov(model)
-  theta<-stats::coef(model)
+  }
+  theta<-btergm::coef(model)
 
 
   ##handle curved ergms by removing decay parameter
   #note that the micro-level change statistics are already properly weighted,
   #so decay term is not needed for predictions
-  if(ergm::is.curved(model)){
-    curved.term<-vector(length=length(model$etamap$curved))
-    for(i in 1:length(model$etamap$curved)){
-      curved.term[i]<-model$etamap$curved[[i]]$from[2]
-    }
-    theta<-theta[-c(curved.term)]
-    vc<-vc[-c(curved.term),-c(curved.term)]
+  if(class(model)=="mtergm" | class(model)=="btergm"){
 
+    if(ergm::is.curved(model@ergm)){
+      curved.term<-vector(length=length(model$etamap$curved))
+      for(i in 1:length(model$etamap$curved)){
+        curved.term[i]<-model$etamap$curved[[i]]$from[2]
+      }
+      cbcoef<-cbcoef[-c(curved.term)]
+    }
+
+  }else{
+    if(ergm::is.curved(model)){
+      curved.term<-vector(length=length(model$etamap$curved))
+      for(i in 1:length(model$etamap$curved)){
+        curved.term[i]<-model$etamap$curved[[i]]$from[2]
+      }
+      cbcoef<-cbcoef[-c(curved.term)]
+    }
   }
 
 
@@ -76,8 +92,6 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
 
       AME.fun<-function(theta){
 
-        tmp<-model
-        tmp$coeffcients<-theta
         ME.ergm<-sapply(names(theta),function(x)
           (p*(1-p)*theta[var1]))
         mean(ME.ergm,na.rm = TRUE)}
@@ -118,8 +132,6 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
 
             AME.fun<-function(theta){
 
-            tmp<-model
-            tmp$coeffcients<-theta
             ME.ergm<-sapply(names(theta),function(x)
               (p*(1-p)*theta[var1]))
             mean(ME.ergm,na.rm = TRUE)}
@@ -133,8 +145,6 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
 
             AME.fun<-function(theta){
 
-            tmp<-model
-            tmp$coeffcients<-theta
             ME.ergm<-sapply(names(theta),function(x)
               (p*(1-p)*theta[var2]))
             mean(ME.ergm,na.rm = TRUE)}
@@ -156,8 +166,6 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
             ##compute marginal effect
             AME.fun<-function(theta){
 
-            tmp<-model
-            tmp$coeffcients<-theta
             ME.ergm<-sapply(names(theta),function(x)
               (p*(1-p)*theta[inter]))
             mean(ME.ergm,na.rm = TRUE)}
@@ -172,7 +180,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
            AME<-matrix(c(AME,AME.se,AME.z,P.AME),nrow=1,ncol=4)
             colnames(AME)<-c("AME","Delta SE","Z","P")
             rownames(AME)<-inter
-            message("NOTE: Nodematch is an interaction, but it is not a product term (e.g., inter!=var1*var2). Z statistics in summary(ergm) are unbiased.")
+            message("NOTE: Nodematch is an interaction, but it is not a product of the main effects (e.g., inter!=var1*var2). Returning the simple AME for the interaction. Consider respecifying ERGM using nodefactor for main effects or absdiff instead of nodematch to measure homophily.")
             marginal.matrix<-signif(marginal.matrix,digits=5)
             AME<-signif(AME,digits=5)
             AME<-list(AME,marginal.matrix)
@@ -223,8 +231,6 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
 
           AME.fun<-function(theta){
 
-            tmp<-model
-            tmp$coeffcients<-theta
             ME.ergm<-sapply(names(theta),function(x)
               (p*(1-p)*(theta[var1]+(theta[inter]*at.diffs))))
             mean(ME.ergm,na.rm = TRUE)}
@@ -245,8 +251,6 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
 
          AME.fun<-function(theta){
 
-          tmp<-model
-          tmp$coeffcients<-theta
           ME.ergm<-sapply(names(theta),function(x)
             (p*(1-p)*(theta[var1]+(theta[inter]*at.2[i]))))
           mean(ME.ergm,na.rm = TRUE)}
