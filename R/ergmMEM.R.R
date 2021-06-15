@@ -7,7 +7,6 @@
 #' @param var2 is the name of the moderator, character string
 #' @param inter is the name of the interaction, character string
 #' @param at.2 is a vector specifying the levels of var2 at which to compute the marginal effects. If left NULL, it computes the MEM at all unique values of var2. Default is NULL.
-
 #If the moderator is binary or specified at only 2 levels,
 #the output object is a 2 dimensional list with one matrix of
 #marginal effects and another of the second differences
@@ -45,7 +44,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=FALSE){
   if(class(model)=="mtergm" | class(model)=="btergm"){
 
     if(ergm::is.curved(model@ergm)){
-      curved.term<-vector(length=length(object$etamap$curved))
+      curved.term<-vector(length=length(model$etamap$curved))
       for(i in 1:length(model$etamap$curved)){
         curved.term[i]<-model$etamap$curved[[i]]$from[2]
       }
