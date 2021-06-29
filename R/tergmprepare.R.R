@@ -30,13 +30,13 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
     l$bipartite <- network::is.bipartite(l$networks[[1]])
   }
   else {
-    if (btergm:::is.mat.directed(as.matrix(l$networks[[1]]))) {
+    if (is.mat.directed(as.matrix(l$networks[[1]]))) {
       l$directed <- TRUE
     }
     else {
       l$directed <- FALSE
     }
-    if (btergm:::is.mat.onemode(as.matrix(l$networks[[1]]))) {
+    if (is.mat.onemode(as.matrix(l$networks[[1]]))) {
       l$bipartite <- FALSE
     }
     else {
@@ -756,3 +756,50 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
                   form3)
   return(l)
 }
+
+
+
+#' Check if a matrix is a one-mode matrix
+#'
+#' Check if a matrix is a one-mode matrix.
+#'
+#' @param mat A matrix object containing zeros and ones.
+#' @return \code{TRUE} if the input matrix \code{mat} represents a one-mode
+#'   network and \code{FALSE} otherwise.
+#'
+#' @noRd
+is.mat.onemode <- function(mat) {
+  if (nrow(mat) != ncol(mat)) {
+    return(FALSE)
+  } else if (!is.null(rownames(mat)) && !is.null(colnames(mat))
+             && any(rownames(mat) != colnames(mat))) {
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
+}
+
+#' Check if a matrix represents a directed network
+#'
+#' Check if a matrix represents a directed network.
+#'
+#' @param mat A matrix object containing zeros and ones.
+#' @return \code{TRUE} if the input matrix \code{mat} represents a directed
+#'   network and \code{FALSE} otherwise.
+#'
+#' @noRd
+is.mat.directed <- function(mat) {
+  if (nrow(mat) != ncol(mat)) {
+    return(FALSE)
+  } else if (!is.null(rownames(mat)) && !is.null(colnames(mat))
+             && any(rownames(mat) != colnames(mat), na.rm = TRUE)) {
+    return(FALSE)
+  } else {
+    if (any(as.matrix(mat) != t(as.matrix(mat)), na.rm = TRUE)) {
+      return(TRUE)
+    } else {
+      return(FALSE)
+    }
+  }
+}
+
