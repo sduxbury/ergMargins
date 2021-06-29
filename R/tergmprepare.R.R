@@ -30,13 +30,13 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
     l$bipartite <- network::is.bipartite(l$networks[[1]])
   }
   else {
-    if (xergm.common::is.mat.directed(as.matrix(l$networks[[1]]))) {
+    if (btergm:::is.mat.directed(as.matrix(l$networks[[1]]))) {
       l$directed <- TRUE
     }
     else {
       l$directed <- FALSE
     }
-    if (xergm.common::is.mat.onemode(as.matrix(l$networks[[1]]))) {
+    if (btergm:::is.mat.onemode(as.matrix(l$networks[[1]]))) {
       l$bipartite <- FALSE
     }
     else {
@@ -504,9 +504,9 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
                             l$covnames[k], "' at t = ", i,
                             "."))
               }
-              nw.j.labels <- xergm.common::adjust(nw.j, nw.k, remove = FALSE,
+              nw.j.labels <- btergm::adjust(nw.j, nw.k, remove = FALSE,
                                     value = 1, returnlabels = TRUE)
-              nw.j <- xergm.common::adjust(nw.j, nw.k, remove = FALSE,
+              nw.j <- btergm::adjust(nw.j, nw.k, remove = FALSE,
                              value = 1)
               l[[l$covnames[j]]][[i]] <- nw.j
               ro <- nw.j.labels$added.row
@@ -527,9 +527,9 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
                 structzero.df <- rbind(structzero.df,
                                        co)
               }
-              nw.k.labels <- xergm.common::adjust(nw.k, nw.j, remove = FALSE,
+              nw.k.labels <- btergm::adjust(nw.k, nw.j, remove = FALSE,
                                     value = 1, returnlabels = TRUE)
-              nw.k <- xergm.common::adjust(nw.k, nw.j, remove = FALSE,
+              nw.k <- btergm::adjust(nw.k, nw.j, remove = FALSE,
                              value = 1)
               l[[l$covnames[k]]][[i]] <- nw.k
               ro <- nw.k.labels$added.row
@@ -666,10 +666,10 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
   }
   else {
     if (l$auto.adjust == TRUE) {
-      l$offsmat <- suppressMessages(xergm.common::handleMissings(l$offsmat,
+      l$offsmat <- suppressMessages(btergm::handleMissings(l$offsmat,
                                                    na = 1, method = "remove"))
       for (j in 1:length(l$covnames)) {
-        l[[l$covnames[j]]] <- xergm.common::adjust(l[[l$covnames[j]]],
+        l[[l$covnames[j]]] <- btergm::adjust(l[[l$covnames[j]]],
                                      l$offsmat)
       }
     }

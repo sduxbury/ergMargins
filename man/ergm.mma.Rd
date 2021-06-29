@@ -134,8 +134,7 @@ my.ergm3<-ergm(faux.mesa.high~edges+
                  gwdsp(1,fixed=TRUE)+
                  gwesp(.5,fixed=TRUE),
                  #increase MC sample to facilitate convergence
-               control = control.ergm(MCMC.samplesize=5000),
-               constraints = ~bd(maxout=5)
+               control = control.ergm(MCMC.samplesize=5000)
 )
 
 ##joint mediation for gwdsp and gwesp

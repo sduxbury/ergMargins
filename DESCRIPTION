@@ -19,15 +19,14 @@ Encoding: UTF-8
 LazyData: false
 Imports:
     numDeriv,
-    statnet,
+    statnet.common,
     stats,
     ergm,
     Matrix,
     network,
     btergm,
     methods,
-    sna,
-    xergm.common
+    sna
 Suggests:
     MASS,
     knitr,

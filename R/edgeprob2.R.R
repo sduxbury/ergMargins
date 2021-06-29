@@ -57,7 +57,7 @@ edge.prob2<-function (model, verbose = FALSE)
     mat <- as.matrix(l$networks[[i]])
     imat <- matrix(rep(1:nrow(mat), ncol(mat)), nrow = nrow(mat))
     if ((class(l$networks[[i]]) == "network" && network::is.bipartite(l$networks[[i]])) ||
-        (class(l$networks[[i]]) == "matrix" && xergm.common::is.mat.onemode(l$networks[[i]]) ==
+        (class(l$networks[[i]]) == "matrix" && btergm:::is.mat.onemode(l$networks[[i]]) ==
          FALSE)) {
       mn <- nrow(mat) + 1
       mx <- nrow(mat) + ncol(mat)
