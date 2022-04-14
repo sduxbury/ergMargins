@@ -34,7 +34,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
 
   if(class(model)=="mtergm"|class(model)=="btergm"){
     vc <- stats::vcov(model@ergm)
-    vc<-vc[!rownames(vc)%in%"offset(edgecov.offsmat)",!colnames(vc)%in%"offset(edgecov.offsmat)"]
+    vc<-vc[!rownames(vc)%in%"edgecov.offsmat",!colnames(vc)%in%"edgecov.offsmat"]
   }else{
   vc <- stats::vcov(model)
   }
