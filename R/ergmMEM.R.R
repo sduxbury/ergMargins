@@ -29,19 +29,29 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=FALSE){
   start.drops<-ncol(dyad.mat)-5
   dyad.mat<-dyad.mat[,-c(start.drops:ncol(dyad.mat))]
 
-  if(class(model)=="mtergm"|class(model)=="btergm"){
+  if(class(model)%in%"mtergm"|class(model)%in%"btergm"){
     vc <- stats::vcov(model@ergm)
     vc<-vc[!rownames(vc)%in%"edgecov.offsmat",!colnames(vc)%in%"edgecov.offsmat"]
   }else{
     vc <- stats::vcov(model)
   }
-  theta<-stats::coef(model)
+
+  if(class(model)%in%"mlergm"){
+    theta<-model$theta
+    vc<-solve(vc)
+  }else{
+    theta<-btergm::coef(model)
+  }
+  #handle mlergm objects
+  if("mlergm"%in%class(model)){
+    class(model)<-"ergm"
+  }
 
   ##handle curved ergms by removing decay parameter
     #note that the micro-level change statistics are already properly weighted,
     #so decay term is not needed for predictions
   ##handle decay term in curved ergms
-  if(class(model)=="mtergm" | class(model)=="btergm"){
+  if(class(model)%in%"mtergm" | class(model)%in%"btergm"){
 
     if(ergm::is.curved(model@ergm)){
       curved.term<-vector(length=length(model$etamap$curved))

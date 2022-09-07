@@ -7,12 +7,15 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
   l <- list()
   l$lhs.original <- deparse(formula[[2]])
   l$networks <- eval(parse(text = deparse(formula[[2]])), envir = environment(formula))
-  if (class(l$networks) == "list" || class(l$networks) ==
+  if (class(l$networks) %in% "list" || class(l$networks) %in%
       "network.list") {
-  }
-  else {
+  } else {
     l$networks <- list(l$networks)
   }
+  if("mlnet"%in%class(l$networks[[1]])){
+    class(l$networks[[1]])<-"network"
+  }
+
   for (i in 1:length(l$networks)) {
     if (!class(l$networks[[i]]) %in% c("network", "matrix",
                                        "list")) {
@@ -28,18 +31,15 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
   if (network::is.network(l$networks[[1]])) {
     l$directed <- network::is.directed(l$networks[[1]])
     l$bipartite <- network::is.bipartite(l$networks[[1]])
-  }
-  else {
+  } else {
     if (is.mat.directed(as.matrix(l$networks[[1]]))) {
       l$directed <- TRUE
-    }
-    else {
+    }else {
       l$directed <- FALSE
     }
     if (is.mat.onemode(as.matrix(l$networks[[1]]))) {
       l$bipartite <- FALSE
-    }
-    else {
+    } else {
       l$bipartite <- TRUE
     }
   }
@@ -74,8 +74,7 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
     if (grepl("((edge)|(dyad))cov", l$rhs.terms[k])) {
       if (grepl(",\\s*?((attr)|\\\")", l$rhs.terms[k])) {
         s <- "((?:offset\\()?((edge)|(dyad))cov\\()([^\\)]+)((,\\s*a*.*?)\\)(?:\\))?)"
-      }
-      else {
+      }else {
         s <- "((?:offset\\()?((edge)|(dyad))cov\\()([^\\)]+)((,*\\s*a*.*?)\\)(?:\\))?)"
       }
       x1 <- sub(s, "\\1", l$rhs.terms[k], perl = TRUE)
@@ -98,7 +97,7 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
       }
       if (grepl("[^\\]]\\]$", x2)) {
         l$rhs.terms[k] <- paste0(x1, x2, x3)
-        if (type %in% c("matrix", "network",
+        if (type[1] %in% c("matrix", "network",
                         "dgCMatrix", "dgTMatrix", "dsCMatrix",
                         "dsTMatrix", "dgeMatrix")) {
           x.current <- list(x.current)
@@ -110,15 +109,13 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
                      "networks to be modeled."))
         }
         if (blockdiag == TRUE) {
-        }
-        else {
+        }else {
           x2 <- paste0(x2, "[[i]]")
         }
-      }
-      else if (type %in% c("matrix", "network",
+      }else if (type[1] %in% c("matrix", "network",
                            "dgCMatrix", "dgTMatrix", "dsCMatrix",
                            "dsTMatrix", "dgeMatrix")) {
-        if (!type %in% c("matrix", "network")) {
+        if (!type[1] %in% c("matrix", "network")) {
           x.current <- as.matrix(x.current)
         }
         l[[x2]] <- list()
@@ -126,26 +123,22 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
           l[[x2]][[i]] <- x.current
         }
         if (blockdiag == TRUE) {
-        }
-        else {
+        }else {
           x2 <- paste0(x2, "[[i]]")
         }
         l$rhs.terms[k] <- paste(x1, x2, x3, sep = "")
-      }
-      else if (type == "list" || type == "network.list") {
+      }else if (type == "list" || type == "network.list") {
         if (length(x.current) != l$time.steps) {
           stop(paste(x2, "has", length(get(x2)),
                      "elements, but there are", l$time.steps,
                      "networks to be modeled."))
         }
         if (blockdiag == TRUE) {
-        }
-        else {
+        }else {
           x2 <- paste0(x2, "[[i]]")
         }
         l$rhs.terms[k] <- paste0(x1, x2, x3)
-      }
-      else {
+      }else {
         tryCatch({
           l[[x2]] <- list(rep(as.matrix(x.current)),
                           l$time.steps)
@@ -153,20 +146,17 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
           stop(paste0("Object '", x2, "' could not be converted to a matrix."))
         })
       }
-    }
-    else if (grepl("memory", l$rhs.terms[k])) {
+    }else if (grepl("memory", l$rhs.terms[k])) {
       s <- "(?:memory\\((?:.*type\\s*=\\s*)?(?:\"|'))(\\w+)(?:(\"|').*\\))"
       if (grepl(s, l$rhs.terms[k]) == FALSE) {
         type <- "stability"
-      }
-      else {
+      }else {
         type <- sub(s, "\\1", l$rhs.terms[k], perl = TRUE)
       }
       s <- "(?:memory\\(.*lag\\s*=\\s*)(\\d+)(?:.*\\))"
       if (grepl(s, l$rhs.terms[k]) == FALSE) {
         lag <- 1
-      }
-      else {
+      }else {
         lag <- as.integer(sub(s, "\\1", l$rhs.terms[k],
                               perl = TRUE))
       }
@@ -180,22 +170,18 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
       for (i in 1:length(mem)) {
         if (type == "autoregression") {
           memory[[i]] <- mem[[i]]
-        }
-        else if (type == "stability") {
+        }else if (type == "stability") {
           mem[[i]][mem[[i]] == 0] <- -1
           memory[[i]] <- mem[[i]]
-        }
-        else if (type == "innovation") {
+        }else if (type == "innovation") {
           memory[[i]] <- mem[[i]]
           memory[[i]][mem[[i]] == 0] <- 1
           memory[[i]][mem[[i]] == 1] <- 0
-        }
-        else if (type == "loss") {
+        }else if (type == "loss") {
           memory[[i]] <- mem[[i]]
           memory[[i]][mem[[i]] == 0] <- 0
           memory[[i]][mem[[i]] == 1] <- -1
-        }
-        else {
+        }else {
           stop("'type' argument in the 'memory' term not recognized.")
         }
       }
@@ -203,26 +189,22 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
       l[["memory"]] <- memory
       if (blockdiag == TRUE) {
         l$rhs.terms[k] <- "edgecov(memory)"
-      }
-      else {
+      }else {
         l$rhs.terms[k] <- "edgecov(memory[[i]])"
       }
       l$covnames <- c(l$covnames, "memory")
-    }
-    else if (grepl("delrecip", l$rhs.terms[k])) {
+    }else if (grepl("delrecip", l$rhs.terms[k])) {
       s <- "(?:delrecip\\((?:.*mutuality\\s*=\\s*)?)((TRUE)|(FALSE)|T|F)(?:.*\\))"
       if (grepl(s, l$rhs.terms[k]) == FALSE) {
         mutuality <- FALSE
-      }
-      else {
+      }else {
         mutuality <- as.logical(sub(s, "\\1", l$rhs.terms[k],
                                     perl = TRUE))
       }
       s <- "(?:delrecip\\(.*lag\\s*=\\s*)(\\d+)(?:.*\\))"
       if (grepl(s, l$rhs.terms[k]) == FALSE) {
         lag <- 1
-      }
-      else {
+      }else {
         lag <- as.integer(sub(s, "\\1", l$rhs.terms[k],
                               perl = TRUE))
       }
@@ -243,13 +225,11 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
       l[["delrecip"]] <- delrecip
       if (blockdiag == TRUE) {
         l$rhs.terms[k] <- "edgecov(delrecip)"
-      }
-      else {
+      }else {
         l$rhs.terms[k] <- "edgecov(delrecip[[i]])"
       }
       l$covnames <- c(l$covnames, "delrecip")
-    }
-    else if (grepl("timecov", l$rhs.terms[k])) {
+    }else if (grepl("timecov", l$rhs.terms[k])) {
       s <- "(?:timecov\\((?:.*x\\s*=\\s*)?)(\\w+)(?:.*\\))"
       if (sub(s, "\\1", l$rhs.terms[k], perl = TRUE) %in%
           c("minimum", "maximum", "transform",
@@ -266,15 +246,13 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
       }
       if (countprevtc > 0) {
         countprevtc <- as.character(countprevtc)
-      }
-      else {
+      }else {
         countprevtc <- ""
       }
       if (grepl(s, l$rhs.terms[k]) == FALSE) {
         x <- NULL
         label <- paste0("timecov", countprevtc)
-      }
-      else {
+      }else {
         x <- sub(s, "\\1", l$rhs.terms[k], perl = TRUE)
         label <- paste0("timecov", countprevtc,
                         ".", x)
@@ -282,32 +260,28 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
       s <- "(?:timecov\\(.*minimum\\s*=\\s*)(\\d+)(?:.*\\))"
       if (grepl(s, l$rhs.terms[k]) == FALSE) {
         minimum <- 1
-      }
-      else {
+      }else {
         minimum <- as.integer(sub(s, "\\1", l$rhs.terms[k],
                                   perl = TRUE))
       }
       s <- "(?:timecov\\(.*maximum\\s*=\\s*)(\\d+)(?:.*\\))"
       if (grepl(s, l$rhs.terms[k]) == FALSE) {
         maximum <- l$time.steps
-      }
-      else {
+      }else {
         maximum <- as.integer(sub(s, "\\1", l$rhs.terms[k],
                                   perl = TRUE))
       }
       s <- "(?:timecov\\(.*transform\\s*=\\s*)(.+?)(?:(?:,|\\)$)]*.*)"
       if (grepl(s, l$rhs.terms[k]) == FALSE) {
         transform <- function(t) t
-      }
-      else {
+      }else {
         transform <- eval(parse(text = sub(s, "\\1",
                                            l$rhs.terms[k], perl = TRUE)))
       }
       if (is.null(x)) {
         covariate <- l[["networks"]]
         onlytime <- TRUE
-      }
-      else {
+      }else {
         onlytime <- FALSE
         covariate <- get(x)
       }
@@ -319,8 +293,7 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
       labelsuffix <- if (blockdiag == TRUE) {
         l$rhs.terms[k] <- paste0("edgecov(", label,
                                  ")")
-      }
-      else {
+      }else {
         l$rhs.terms[k] <- paste0("edgecov(", label,
                                  "[[i]])")
       }
@@ -351,6 +324,7 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
       }
     }
   }
+
   t.end <- max(lengths)
   t.start <- t.end - mn + 1
   if (verbose == TRUE) {
@@ -367,11 +341,11 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
       colnames(dimensions) <- paste0("t=", t.start:t.end)
       message("\nInitial dimensions of the network and covariates:")
       print(dimensions)
-    }
-    else {
+    }else {
       message("\nNo covariates provided.")
     }
   }
+
   l$auto.adjust <- FALSE
   if (length(l$covnames) > 1) {
     nr <- lapply(lapply(l$covnames, function(x) l[[x]]),
@@ -445,12 +419,17 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
   if (verbose == TRUE && l$auto.adjust == TRUE) {
     message("Trying to auto-adjust the dimensions of the networks. ",
             "If this fails, provide conformable matrices or network objects.")
-  }
-  else if (verbose == TRUE) {
+  }else if (verbose == TRUE) {
     message("\nAll networks are conformable.")
   }
   structzero.df <- data.frame(label = character(), time = integer(),
                               object = character(), where = character())
+
+
+
+
+  ###error below
+
   if (length(l$covnames) > 0 && l$auto.adjust == TRUE) {
     for (i in 1:l$time.steps) {
       for (j in 1:length(l$covnames)) {
@@ -462,10 +441,15 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
             nr.j <- nrow(as.matrix(nw.j))
             nc.j <- ncol(as.matrix(nw.j))
             nw.k <- l[[l$covnames[k]]][[i]]
-            rn.k <- rownames(as.matrix(nw.k))
-            cn.k <- colnames(as.matrix(nw.k))
             nr.k <- nrow(as.matrix(nw.k))
             nc.k <- ncol(as.matrix(nw.k))
+            cn.k <- colnames(as.matrix(nw.k))
+            if(nr.k==nc.k){
+              rn.k<-cn.k
+            }else{
+            rn.k <- rownames(as.matrix(nw.k))
+            }
+
             if (is.null(rn.j) || is.null(cn.j)) {
               stop(paste0("Missing row or column labels in object '",
                           l$covnames[j], "'. Provide row and column ",
@@ -479,7 +463,7 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
             else {
               if (is.null(rn.j) && !is.null(rn.k) &&
                   nr.j == nr.k) {
-                if (class(nw.j) == "network") {
+                if (class(nw.j) %in% "network") {
                   network::set.vertex.attribute(nw.j,
                                                 "vertex.names", rn.k)
                 }
@@ -489,7 +473,7 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
               }
               else if (is.null(rn.k) && !is.null(rn.j) &&
                        nr.j == nr.k) {
-                if (class(nw.k) == "network") {
+                if (class(nw.k) %in% "network") {
                   network::set.vertex.attribute(nw.k,
                                                 "vertex.names", rn.j)
                 }
@@ -556,6 +540,8 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
       }
     }
   }
+
+
   nr.net <- sapply(l$networks, function(x) nrow(as.matrix(x)))
   for (i in 1:length(l$covnames)) {
     nr <- sapply(l[[l$covnames[i]]], function(x) {
@@ -663,8 +649,7 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
   if (offset == TRUE) {
     l$rhs.terms[length(l$rhs.terms) + 1] <- "offset(edgecov(offsmat[[i]]))"
     rhs.operators[length(rhs.operators) + 1] <- "+"
-  }
-  else {
+  }  else {
     if (l$auto.adjust == TRUE) {
       l$offsmat <- suppressMessages(btergm::handleMissings(l$offsmat,
                                                    na = 1, method = "remove"))
@@ -722,7 +707,7 @@ tergmprepare2<-function (formula, offset = TRUE, blockdiag = FALSE, verbose = TR
     l$offsmat <- l$offsmat + bdoffset
     rm(bdoffset)
     l$offsmat[l$offsmat > 0] <- 1
-    if (class(l$networks[[1]]) == "network") {
+    if (class(l$networks[[1]]) %in% "network") {
       attrnames <- network::list.vertex.attributes(l$networks[[1]])
       attributes <- list()
       for (i in 1:length(l$networks)) {

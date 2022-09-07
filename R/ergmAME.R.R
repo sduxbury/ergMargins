@@ -32,19 +32,28 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
   start.drops<-ncol(dyad.mat)-5
   dyad.mat<-dyad.mat[,-c(start.drops:ncol(dyad.mat))]
 
-  if(class(model)=="mtergm"|class(model)=="btergm"){
+
+  if(class(model)%in%"mtergm"|class(model)%in%"btergm"){
     vc <- stats::vcov(model@ergm)
     vc<-vc[!rownames(vc)%in%"edgecov.offsmat",!colnames(vc)%in%"edgecov.offsmat"]
   }else{
   vc <- stats::vcov(model)
   }
-  theta<-btergm::coef(model)
-
+  if(class(model)%in%"mlergm"){
+    theta<-model$theta
+    vc<-solve(vc) #invert the fisher matrix
+  }else{
+    theta<-btergm::coef(model)
+  }
+  #handle mlergm objects
+  if("mlergm"%in%class(model)){
+    class(model)<-"ergm"
+  }
 
   ##handle curved ergms by removing decay parameter
   #note that the micro-level change statistics are already properly weighted,
   #so decay term is not needed for predictions
-  if(class(model)=="mtergm" | class(model)=="btergm"){
+  if(class(model)%in%"mtergm" | class(model)%in%"btergm"){
 
     if(ergm::is.curved(model@ergm)){
       curved.term<-vector(length=length(model$etamap$curved))
@@ -99,7 +108,6 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
     AME<-AME.fun(theta)
     Jac<-numDeriv::jacobian(AME.fun,theta)
     variance.ame<-Jac%*%vc%*%t(Jac)
-
 
     AME.se<-sqrt(variance.ame)
     AME.z<-AME/AME.se
@@ -180,7 +188,7 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
            AME<-matrix(c(AME,AME.se,AME.z,P.AME),nrow=1,ncol=4)
             colnames(AME)<-c("AME","Delta SE","Z","P")
             rownames(AME)<-inter
-            message("NOTE: Nodematch is an interaction, but it is not a product of the main effects (e.g., inter!=var1*var2). Returning the simple AME for the interaction. Consider respecifying ERGM using nodefactor for main effects or absdiff instead of nodematch to measure homophily.")
+          #  message("NOTE: Nodematch is an interaction, but it is not a product of the main effects (e.g., inter!=var1*var2). Returning the simple AME for the interaction. Consider respecifying ERGM using nodefactor for main effects or absdiff instead of nodematch to measure homophily.")
             marginal.matrix<-signif(marginal.matrix,digits=5)
             AME<-signif(AME,digits=5)
             AME<-list(AME,marginal.matrix)
