@@ -15,12 +15,14 @@ setMethod("getformula", signature = className("mtergm", "btergm"),
 
 setMethod("getformula", signature = className("ergm", "ergm"),
           definition = function(x) x$formula)
+setMethod("getformula", signature = className("mlergm", "mlergm"),
+          definition = function(x) x$formula)
 
 
 edge.prob2<-function (model, verbose = FALSE)
 {
   object<-model
-  if (class(object) == "ergm") {
+  if (class(object) %in% c("ergm","mlergm")) {
     tergm <- FALSE
   } else if (class(object) %in% c("btergm", "mtergm")) {
     tergm <- TRUE
@@ -30,7 +32,7 @@ edge.prob2<-function (model, verbose = FALSE)
   }
 
   ##check for duplicated names
-  if(class(object)=="ergm"){
+  if(class(object)%in%c("ergm","mlergm")){
     if(any(duplicated(network::get.vertex.attribute(model$network,"vertex.names")))){
 
       size<-network::network.size(model$network)
@@ -39,15 +41,20 @@ edge.prob2<-function (model, verbose = FALSE)
   }
 
 
-  l <- tergmprepare2(formula = getformula(object), offset = FALSE,
-                    blockdiag = FALSE, verbose = FALSE)
+  l <- suppressWarnings(tergmprepare2(formula = getformula(object), offset = FALSE,
+                    blockdiag = FALSE, verbose = FALSE))
   for (cv in 1:length(l$covnames)) {
     assign(l$covnames[cv], l[[l$covnames[cv]]])
   }
   assign("offsmat", l$offsmat)
   form <- stats::as.formula(l$form)
   covnames <- l$covnames[-1]
-  coefs <- btergm::coef(object)
+
+  if(class(object)%in%"mlergm"){
+    coefs<-object$theta
+  }else{
+    coefs <- btergm::coef(object)
+  }
   if (verbose == TRUE) {
     message("Creating data frame with predictors...")
   }
@@ -56,8 +63,8 @@ edge.prob2<-function (model, verbose = FALSE)
   for (i in 1:length(l$networks)) {
     mat <- as.matrix(l$networks[[i]])
     imat <- matrix(rep(1:nrow(mat), ncol(mat)), nrow = nrow(mat))
-    if ((class(l$networks[[i]]) == "network" && network::is.bipartite(l$networks[[i]])) ||
-        (class(l$networks[[i]]) == "matrix" && is.mat.onemode(l$networks[[i]]) ==
+    if ((class(l$networks[[i]]) %in% "network" && network::is.bipartite(l$networks[[i]])) ||
+        (class(l$networks[[i]]) %in% "matrix" && is.mat.onemode(l$networks[[i]]) ==
          FALSE)) {
       mn <- nrow(mat) + 1
       mx <- nrow(mat) + ncol(mat)
@@ -82,7 +89,11 @@ edge.prob2<-function (model, verbose = FALSE)
   class(dyads[, length(colnames(dyads))]) <- "integer"
   class(dyads[, length(colnames(dyads)) - 1]) <- "integer"
   class(dyads[, length(colnames(dyads)) - 2]) <- "integer"
-  cf <- btergm::coef(object)
+  if(class(object)%in%"mlergm"){
+    cf<-object$theta
+  }else{
+    cf <- btergm::coef(object)
+  }
   cf.length <- length(cf)
   cf <- cf[!cf %in% c(Inf, -Inf)]
   if (length(cf) != cf.length) {
@@ -93,7 +104,10 @@ edge.prob2<-function (model, verbose = FALSE)
   cbcoef <- cbind(cf)
   chgstat <- dyads[, 2:(ncol(dyads) - 3)]
   ##handle decay term in curved ergms
-  if(class(object)=="mtergm" | class(object)=="btergm"){
+  if("mlergm"%in%class(object)){
+    class(object)<-"ergm"
+  }
+  if(class(object)%in%"mtergm" | class(object)%in%"btergm"){
 
     if(ergm::is.curved(object@ergm)){
       curved.term<-vector(length=length(object$etamap$curved))
