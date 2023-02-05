@@ -22,7 +22,15 @@
 #standard errors are computed using the delta method.
 
 
-ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE, return.at.2=FALSE){
+ergm.AME<-function(model,
+                   var1,
+                   var2=NULL,
+                   inter=NULL,
+                   at.2=NULL,
+                   at.controls=NULL,
+                   control_vals=NULL,
+                   return.dydx=FALSE,
+                   return.at.2=FALSE){
 
 
   ##get edge probabilities
@@ -33,7 +41,8 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
   dyad.mat<-dyad.mat[,-c(start.drops:ncol(dyad.mat))]
 
 
-  if(class(model)%in%"mtergm"|class(model)%in%"btergm"){
+
+  if(class(model)%in%"mtergm"){
     vc <- stats::vcov(model@ergm)
     vc<-vc[!rownames(vc)%in%"edgecov.offsmat",!colnames(vc)%in%"edgecov.offsmat"]
   }else{
@@ -53,14 +62,14 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
   ##handle curved ergms by removing decay parameter
   #note that the micro-level change statistics are already properly weighted,
   #so decay term is not needed for predictions
-  if(class(model)%in%"mtergm" | class(model)%in%"btergm"){
+  if(class(model)%in%"mtergm"){
 
     if(ergm::is.curved(model@ergm)){
       curved.term<-vector(length=length(model$etamap$curved))
       for(i in 1:length(model$etamap$curved)){
         curved.term[i]<-model$etamap$curved[[i]]$from[2]
       }
-      cbcoef<-cbcoef[-c(curved.term)]
+      theta<-theta[-c(curved.term)]
     }
 
   }else{
@@ -69,13 +78,32 @@ ergm.AME<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
       for(i in 1:length(model$etamap$curved)){
         curved.term[i]<-model$etamap$curved[[i]]$from[2]
       }
-      cbcoef<-cbcoef[-c(curved.term)]
+      theta<-theta[-c(curved.term)]
     }
   }
 
 
   if(any(names(theta)!=colnames(dyad.mat))){
     colnames(dyad.mat)<-names(theta) #make sure names align
+  }
+
+  ##assign fixed values for controls when specified
+
+  if(!is.null(at.controls)){
+    if(is.null(control_vals)){
+      stop("control_vals must be specified to use at.controls argument.")
+    }
+
+    if(length(at.controls)==1){
+      dyad.mat[,at.controls]<-control_vals
+    }else{
+      for(i in 1:length(at.controls)){
+        dyad.mat[,at.controls][,i]<-control_vals[i]
+      }
+    }
+
+    p<-as.matrix(dyad.mat)%*%theta
+
   }
 
 

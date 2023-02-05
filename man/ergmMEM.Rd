@@ -8,7 +8,9 @@ Function to compute marginal effects at means in ERGM.
 ERGM function to compute marginal effects at means for main effects or at various levels of a moderator. Also provides tests of significance for second differences for interaction terms. Syntax similar to margins by Thomas Leeper and Stata margins command. See ergm.AME to compute average marginal effect.
 }
 \usage{
-ergm.MEM(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE)
+ergm.MEM(model,var1,var2=NULL,inter=NULL,at.2=NULL,
+                at.controls=NULL, control_vals=NULL,
+            return.dydx=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -19,6 +21,8 @@ ergm.MEM(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE)
 \item{var2}{the character string containing the name of the moderator variable. Default value is NULL.}
 \item{inter}{the character string containing the name of the interaction between var1 and var2. Default value is NULL.}
 \item{at.2}{the levels of var2 at which to compute the MEMs. If var2=NULL, this parameter is ignored. If var2!=NULL and at.2=NULL, the function computes the AME at each unique value of var2. at.2 can also be set to meaningful values, such as the mean of var2 or other discrete values of interest. If var2 is discrete, leaving at.2 NULL will compute the AME for each discrete category of the moderator variable. It is usually safe to leave at.2=NULL unless examining a large network where var2 has a large number of unique values, in which case computation times can be restrictive.}
+\item{at.controls}{A character string containing the names of all control variables to be specified at fixed levels when calculating the marginal effect. Should match ERGM output exactly.}
+\item{control_vals}{A vector specifying the values to hold at.controls variables. Ignored if at.controls = NULL}
 \item{return.dydx}{logical parameter indicating whether to return the marginal effects for each dyad observation. Defaults to FALSE.}
 }
 \details{
@@ -29,6 +33,8 @@ Computes the MEM for variables specified. If var2 and inter are left at NULL, th
 When at.2 and var2 are specified, a table of second differences is also returned. The table of second differences assesses whether the difference in marginal effects is significant between levels of a moderator (values of at.2). If the moderator is binary, the second difference tests the overall significance of an interaction. The tests statistic is a Wald test.
 
 If more than 2 values of at.2 are specified, the function also computes the average absolute Wald test statistic and average second difference. The average second difference measures the average change in the MEM of var1 between levels of a moderator. The average absolute Wald test is the mean absolute value of the Wald tests for all second differences. It assesses whether, on average, there is a significant difference between the second differences and zero. A significant result means the interaction is significant.
+
+If at.controls and control_vals are provided, the MEM is calculated while holding specified control variables at fixed values provided in control_vals, rather than at their means
 }
 \value{
 If var2 and inter=NULL, then a table is returned with the MEM for var1, its standard error, and test statistic. Note again that all MEMs are in the metric of tie probabilities, not log-odds. If a moderator is specified, a list is returned with the following elements:
@@ -102,6 +108,11 @@ my.ergm<-ergm(faux.dixon.high~edges+
 
 #main effect
 main.eff<-ergm.MEM(my.ergm,"mutual")
+
+#main effect of "mutual" when sender and receiver effects for sex == 1
+ergm.MEM(my.ergm,"mutual",
+              at.controls=c("nodeifactor.sex.2","nodeofactor.sex.2"),
+              control_vals=c(1,1))
 
 
 ##with moderator

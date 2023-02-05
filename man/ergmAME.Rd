@@ -8,7 +8,8 @@ ERGM function to compute average marginal effects for main effects or at various
 
 }
 \usage{
-ergm.AME(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
+ergm.AME(model,var1,var2=NULL,inter=NULL, at.2=NULL,  at.controls=NULL,
+                   control_vals=NULL,return.dydx=FALSE,
         return.at.2=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -20,6 +21,8 @@ ergm.AME(model,var1,var2=NULL,inter=NULL,at.2=NULL, return.dydx=FALSE,
 \item{var2}{if examining moderation, the character string containing the name of the moderator variable. Default value is NULL.}
 \item{inter}{if examining moderation, the character string containing the name of the interaction between var1 and var2. Default value is NULL.}
 \item{at.2}{the levels of var2 at which to compute the average marginal effects. If var2=NULL, this parameter is ignored. If var2!=NULL and at.2=NULL, the function computes the AME at each unique value of var2. at.2 can also be set to meaningful values, such as the mean of var2 or other discrete values of interest. If var2 is discrete, leaving at.2 NULL will compute the AME for each discrete category of the moderator variable. It is usually safe to leave at.2=NULL unless examining a large network where var2 has a large number of unique values, in which case computation times can be restrictive.}
+\item{at.controls}{A character string containing the names of all control variables to be specified at fixed levels when calculating the marginal effect. Should match ERGM output exactly.}
+\item{control_vals}{A vector specifying the values to hold at.controls variables. Ignored if at.controls = NULL}
 \item{return.dydx}{logical parameter indicating whether to return the marginal effects for each dyad. Defaults to FALSE.}
 \item{return.at.2}{logical parameter indicating whether to return the levels of at.2 as part of the output list object. Default value is F. Intended primarily for internal use.}
 }
@@ -31,6 +34,8 @@ When at.2 and var2 are specified, a table of second differences is also returned
 If more than 2 values of at.2 are specified, the function also computes the average absolute Wald test statistic and average second difference. The average second difference measures the average change in the AME of var1 between levels of a moderator. The average absolute Wald test is the mean absolute value of the Wald tests for all second differences. It assesses whether, on average, there is a significant difference between the second differences and zero. A significant result means the interaction is significant.
 
 Note that when an interaction term is an absolute difference between nodal covariates, ergm.AME holds the value of var1 at its mean. This is because the partial derivative for the absolute difference between covariates treats allows var1 to vary, which tells us little about tendencies towards tie variables when two nodal covariates are at similar values. Thus, the mean is used as a representative value at which to compute the AME for absolute differences.
+
+If at.controls and control_vals are provided, the AME is calculated while holding specified control variables at fixed values provided in control_vals, rather than their observed vales.
 }
 \value{
 If var2 and inter=NULL, then a table is returned with the AME for var1, its standard error, and test statistic. Note again that all AMEs are in the metric of tie probabilities, not log-odds.
@@ -106,6 +111,11 @@ my.ergm<-ergm(faux.dixon.high~edges+
 #main effect
 main.eff<-ergm.AME(my.ergm,"mutual")
 
+#main effect of "mutual" when sender and receiver effects for sex == 1
+ergm.AME(my.ergm,"mutual",
+              at.controls=c("nodeifactor.sex.2","nodeofactor.sex.2"),
+              control_vals=c(1,1))
+
 
 ##with moderator
 sex.inter<-ergm.AME(my.ergm,"nodeifactor.sex.2","nodeofactor.sex.2","nodematch.sex")
@@ -122,6 +132,11 @@ m.sd<-m+sd(tie.probs$nodeocov.grade)
 
 grade.inter.at.means<-ergm.AME(my.ergm,"nodeicov.grade","nodeocov.grade",
                               "absdiff.grade",at.2=c(m,m.sd))
+
+
+
+
+
 }
 
 }

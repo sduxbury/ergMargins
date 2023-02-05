@@ -7,7 +7,8 @@ Function to conduct marginal effects mediation analysis in ERGM.
 \description{
 ergm.mma is a function to conduct mediation analysis in ERGM using marginal effects. It computes the total, direct, and indirect average marginal effects for two nested ERGMs fit to the same data. Can be used with discrete or continuous mediators and for multiple mediator analyses.}
 \usage{
-ergm.mma(restricted.model,full.model,direct.effect,mediator)
+ergm.mma(restricted.model,full.model,direct.effect,mediator,
+                  at.controls=NULL, control_vals=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,6 +19,8 @@ ergm.mma(restricted.model,full.model,direct.effect,mediator)
 
   \item{mediator}{a character string containing the name of the mediator variable. When examining joint mediation with multiple mediators, this is a vector with each entry containing the character strings for each mediator variable.}
   \item{direct.effect}{a character string containing the name of the direct effect.}
+  \item{at.controls}{a vector of character strings containing the names of control variables to hold at prespecified values.}
+  \item{control_vals}{a vector of numeric values to hold at.controls at during estimation.}
 }
 \details{
 ergm.mma conducts marginal effects mediation analysis for nested ERGMs fit to the same network by computing the change in average marginal effects between models. The AMEs are estimated on the scale of tie probabilities, not the linear component (log-odds). Standard errors are computed using the Delta method.

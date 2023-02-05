@@ -7,13 +7,17 @@
 #' @param direct.effect is the direct effect of interest
 
 
-ergm.mma<-function(restricted.model,full.model,direct.effect,mediator){
+ergm.mma<-function(restricted.model,full.model,direct.effect,mediator,
+                   at.controls=NULL,
+                   control_vals=NULL){
 
-  tot.AME<-ergm.AME(restricted.model,direct.effect,return.dydx=TRUE)
+  tot.AME<-ergm.AME(restricted.model,direct.effect,return.dydx=TRUE,
+                    at.controls=at.controls,control_vals=control_vals)
   tot.dydx<-tot.AME$dydx
   tot.AME<-tot.AME$AME
 
-  p.AME<-ergm.AME(full.model,direct.effect,return.dydx=TRUE)
+  p.AME<-ergm.AME(full.model,direct.effect,return.dydx=TRUE,
+                  at.controls=at.controls,control_vals=control_vals)
   p.dydx<-p.AME$dydx
   p.AME<-p.AME$AME
 

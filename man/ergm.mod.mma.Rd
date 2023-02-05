@@ -8,7 +8,8 @@
 ergm.mod.mma is a function to asssess mediated moderation in ERGM using average marginal effects (AME), e.g. when the main effect is a part of an interaction. If joint=TRUE, the function computes the total, partial, and indirect effects for all parts of the interaction. If int.eff=TRUE, the function computes the same values, but only for the moderating effect (e.g., only the moderated portion). Both joint=TRUE and int.eff=TRUE can be set simultaneously. }
 \usage{
 ergm.mod.mma(restricted.model,full.model,var1, var2, inter,mediator,
-                   at.2=NULL,joint=FALSE,int.eff=FALSE)}
+                   at.2=NULL,joint=FALSE,int.eff=FALSE,
+                   at.controls=NULL, control_vals=NULL)}
 %- maybe also 'usage' for other objects documented here.
 \arguments{
 
@@ -24,6 +25,8 @@ ergm.mod.mma(restricted.model,full.model,var1, var2, inter,mediator,
   \item{mediator}{a character string containing the name of the mediator variable. When examining joint mediation with multiple mediators, this is a vector with each entry containing the character strings for each mediator variable.}
   \item{joint}{logical parameter indicates whether to compute the mediated composite effect.}
   \item{int.eff}{logical parameter indicating whether to compute the mediated effect \emph{only} for the interaction, net of the main effect. Either int.eff or joint must be set to TRUE for function to work.}
+   \item{at.controls}{a vector of character strings containing the names of control variables to hold at prespecified values.}
+  \item{control_vals}{a vector of numeric values to hold at.controls at during estimation.}
 
 }
 \details{

@@ -20,7 +20,14 @@
 #standard errors are computed using the delta method.
 
 
-ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=FALSE){
+ergm.MEM<-function(model,
+                   var1,
+                   var2=NULL,
+                   inter=NULL,
+                   at.2=NULL,
+                   at.controls=NULL,
+                   control_vals=NULL,
+                   return.dydx=FALSE){
 
 
   ##get edge probabilities
@@ -58,7 +65,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=FALSE){
       for(i in 1:length(model$etamap$curved)){
         curved.term[i]<-model$etamap$curved[[i]]$from[2]
       }
-      cbcoef<-cbcoef[-c(curved.term)]
+      theta<-theta[-c(curved.term)]
     }
 
   }else{
@@ -67,7 +74,7 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=FALSE){
       for(i in 1:length(model$etamap$curved)){
         curved.term[i]<-model$etamap$curved[[i]]$from[2]
       }
-      cbcoef<-cbcoef[-c(curved.term)]
+      theta<-theta[-c(curved.term)]
     }
   }
 
@@ -75,8 +82,26 @@ ergm.MEM<-function(model,var1,var2=NULL,inter=NULL,at.2=NULL,return.dydx=FALSE){
     colnames(dyad.mat)<-names(theta) #make sure names align
   }
 
+
+  ###incorporate control vals
+
+  if(!is.null(at.controls)){
+    if(is.null(control_vals)){
+      stop("control_vals must be specified to use at.controls argument.")
+    }
+    if(length(at.controls)==1){
+      dyad.mat[,at.controls]<-control_vals
+    }else{
+      for(i in 1:length(at.controls)){
+        dyad.mat[,at.controls][,i]<-control_vals[i]
+      }
+    }
+  }
+
+
   #create marginal effects
   dyad.means<-colMeans(dyad.mat,na.rm=TRUE)
+
   p<-1/(1+exp(-dyad.means%*%theta))
 
 
