@@ -8,7 +8,7 @@ Function to conduct marginal effects mediation analysis in ERGM.
 ergm.mma is a function to conduct mediation analysis in ERGM using marginal effects. It computes the total, direct, and indirect average marginal effects for two nested ERGMs fit to the same data. Can be used with discrete or continuous mediators and for multiple mediator analyses.}
 \usage{
 ergm.mma(restricted.model,full.model,direct.effect,mediator,
-                  at.controls=NULL, control_vals=NULL)
+                  at.controls=NULL, control_vals=NULL,ME="AME")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -21,6 +21,7 @@ ergm.mma(restricted.model,full.model,direct.effect,mediator,
   \item{direct.effect}{a character string containing the name of the direct effect.}
   \item{at.controls}{a vector of character strings containing the names of control variables to hold at prespecified values.}
   \item{control_vals}{a vector of numeric values to hold at.controls at during estimation.}
+  \item{ME}{the type of marginal effect to calculate. Currently accepts either "AME" or "MEM". Defaul it "AME"}
 }
 \details{
 ergm.mma conducts marginal effects mediation analysis for nested ERGMs fit to the same network by computing the change in average marginal effects between models. The AMEs are estimated on the scale of tie probabilities, not the linear component (log-odds). Standard errors are computed using the Delta method.
@@ -28,7 +29,7 @@ ergm.mma conducts marginal effects mediation analysis for nested ERGMs fit to th
 A few notes on using ergm.mma:
 \itemize{
 
-\item ergm.mma relies on AMEs, which can be computationally intensive in large networks or high dimensional models.
+\item ergm.mma default specification uses the AME, which can be computationally intensive in large networks or high dimensional models. If run times are an issue, try specifying ME="MEM".
 
 \item ergm.mma can be applied to discrete mediators or multiple mediator analysis.
 
@@ -37,7 +38,7 @@ A few notes on using ergm.mma:
 
 }
 \value{
-Returns a table including the point estimates and standard errors for total, direct, and indirect effects. A single indirect effect is reported for joint mediation analyses. All AMEs are computed on the scale of tie probabilities, not the linear component (log-odds).
+Returns a table including the point estimates and standard errors for total, direct, and indirect effects. A single indirect effect is reported for joint mediation analyses. All marginal effects are computed on the scale of tie probabilities, not the linear component (log-odds).
 
 }
 \references{

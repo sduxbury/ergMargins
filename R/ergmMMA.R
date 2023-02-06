@@ -9,28 +9,109 @@
 
 ergm.mma<-function(restricted.model,full.model,direct.effect,mediator,
                    at.controls=NULL,
-                   control_vals=NULL){
+                   control_vals=NULL,
+                   ME="AME"){
 
-  tot.AME<-ergm.AME(restricted.model,direct.effect,return.dydx=TRUE,
-                    at.controls=at.controls,control_vals=control_vals)
-  tot.dydx<-tot.AME$dydx
-  tot.AME<-tot.AME$AME
+  if(!ME%in%c("AME","MEM")){
+    warning("ME must be specified as AME or MEM. Returning the AME.")
+    ME<-"AME"
+  }
 
-  p.AME<-ergm.AME(full.model,direct.effect,return.dydx=TRUE,
-                  at.controls=at.controls,control_vals=control_vals)
-  p.dydx<-p.AME$dydx
-  p.AME<-p.AME$AME
+    if(class(restricted.model)%in%"mlergm"){
+      theta1<-restricted.model$theta
+      theta2<-full.model$theta
 
-    #ensure equal dimensions. Typically only necessary in large networks.
-  if(length(tot.dydx)!=length(p.dydx)){
-
-    if(length(tot.dydx)<length(p.dydx)){
-      p.dydx<-p.dydx[1:length(tot.dydx)]
     }else{
-      tot.dydx<-tot.dydx[1:length(p.dydx)]
+      theta1<-btergm::coef(restricted.model)
+      theta2<-btergm::coef(full.model)
+
     }
 
+  ##check at.controls appear in both models
+  if(!is.null(at.controls)){
+    if(!all(at.controls%in%names(theta1))){
+      stop("Variables specified in any.controls must appear in both models to be used.")
+    }
+    if(!all(at.controls%in%names(theta2))){
+      stop("Variables specified in any.controls must appear in both models to be used.")
+    }
   }
+
+
+  if(ME%in%"AME"){
+
+    tot.AME<-ergm.AME(restricted.model,direct.effect,return.dydx=TRUE,
+                    at.controls=at.controls,control_vals=control_vals)
+    tot.Jac<-tot.AME$Jac
+    tot.AME<-tot.AME$AME
+
+    p.AME<-ergm.AME(full.model,direct.effect,return.dydx=TRUE,
+                  at.controls=at.controls,control_vals=control_vals)
+    p.Jac<-p.AME$Jac
+    p.AME<-p.AME$AME
+  }else{
+    tot.AME<-ergm.MEM(restricted.model,direct.effect,return.dydx=TRUE,
+                      at.controls=at.controls,control_vals=control_vals)
+    tot.Jac<-tot.AME$Jac
+    tot.AME<-tot.AME$MEM
+
+    p.AME<-ergm.MEM(full.model,direct.effect,return.dydx=TRUE,
+                    at.controls=at.controls,control_vals=control_vals)
+    p.Jac<-p.AME$Jac
+    p.AME<-p.AME$MEM
+
+  }
+
+    #ensure equal dimensions. Typically only necessary in large networks.
+ # if(length(tot.dydx)!=length(p.dydx)){
+
+  #  if(length(tot.dydx)<length(p.dydx)){
+ #     p.dydx<-p.dydx[1:length(tot.dydx)]
+  #  }else{
+#      tot.dydx<-tot.dydx[1:length(p.dydx)]
+  #  }
+
+ # }
+
+
+  ###estimate cross-model covariance
+  names(p.Jac)<-names(theta2)
+  names(tot.Jac)<-names(theta1)
+  tot.Jac_expanded<-rep(0,length(p.Jac))
+  names(tot.Jac_expanded)<-names(p.Jac)
+  tot.Jac_expanded[names(tot.Jac_expanded)%in%names(tot.Jac)]<-tot.Jac
+
+  #get vcovs
+  if(class(restricted.model)%in%"mtergm"|class(restricted.model)%in%"btergm"){
+    tot.vc <- stats::vcov(restricted.model@ergm)
+    tot.vc <-tot.vc[!rownames(tot.vc)%in%"edgecov.offsmat",!colnames(tot.vc)%in%"edgecov.offsmat"]
+    p.vc <- stats::vcov(full.model@ergm)
+    p.vc <-p.vc[!rownames(p.vc)%in%"edgecov.offsmat",!colnames(p.vc)%in%"edgecov.offsmat"]
+
+  }else{
+
+    tot.vc <- stats::vcov(restricted.model)
+    p.vc <- stats::vcov(full.model)
+
+  }
+
+  if(class(restricted.model)%in%"mlergm"){
+    tot.vc<-solve(tot.vc)
+    p.vc<-solve(p.vc)
+  }
+
+
+  tot_vc_expanded<-matrix(0,nrow=nrow(p.vc),ncol=ncol(p.vc))
+  rownames(tot_vc_expanded)<-colnames(tot_vc_expanded)<-names(theta2)
+  tot_vc_expanded[rownames(tot_vc_expanded)%in%names(theta1),
+                colnames(tot_vc_expanded)%in%names(theta1)]<-tot.vc
+
+
+  #calculate gradient and cross_mod covariance
+  cross_mod_grad<-t(p.Jac)%*%t(as.matrix(tot.Jac_expanded))
+
+  cross_mod_cov<-p.vc%*%cross_mod_grad%*%tot_vc_expanded
+
 
   rownames(tot.AME)<-paste("total effect:",rownames(tot.AME))
   rownames(p.AME)<-paste("partial effect:",rownames(p.AME))
@@ -38,7 +119,7 @@ ergm.mma<-function(restricted.model,full.model,direct.effect,mediator,
     ###indirect effect
 
     mma.me<-tot.AME[1,1]-p.AME[1,1]
-    cov.ame<-2*stats::cor(p.dydx,tot.dydx)*tot.AME[,2]*p.AME[,2]
+    cov.ame<-cross_mod_cov[direct.effect,direct.effect]
     mma.se<-sqrt(tot.AME[,2]^2+p.AME[,2]^2-cov.ame)
     mma.z<-mma.me/mma.se
     p.mma<-2*stats::pnorm(-abs(mma.z))

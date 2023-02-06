@@ -149,8 +149,8 @@ ergm.AME<-function(model,
     if(return.dydx==TRUE){
       dydx<-sapply(names(theta),function(x)
         (p*(1-p)*theta[var1]))
-        AME<-list(AME,dydx[,var1])
-        names(AME)<-c("AME","dydx")
+        AME<-list(AME,dydx[,var1],Jac)
+        names(AME)<-c("AME","dydx","Jac")
 
     }
 
@@ -319,8 +319,8 @@ ergm.AME<-function(model,
         AME<-t(as.matrix(marginal.matrix[,-c(5)]))
         rownames(AME)<-rownames(marginal.matrix)
         if(return.dydx==TRUE){
-          AME<-list(AME,dydx.list)
-          names(AME)<-c("Average Marginal effects","Marginal effects")
+          AME<-list(AME,dydx.list,Jac1)
+          names(AME)<-c("Average Marginal effects","Marginal effects","Jac")
         }
         if(return.at.2==TRUE){
           AME<-list(main.results=AME,
@@ -360,8 +360,8 @@ ergm.AME<-function(model,
         if(return.dydx==FALSE){
         ADC<-list(second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))])
         names(ADC)<-c("Second differences","Average Marginal effects")}else{
-          ADC<-list(second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))],dydx.list)
-          names(ADC)<-c("Second differences","Average Marginal effects","Marginal effects")
+          ADC<-list(second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))],dydx.list,Jac1)
+          names(ADC)<-c("Second differences","Average Marginal effects","Marginal effects","Jac")
         }
         if(return.at.2==TRUE){
           ADC<-list(ADC,at.2)
@@ -381,8 +381,8 @@ ergm.AME<-function(model,
       ADC<-list(summary.output,second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))])
       names(ADC)<-c("Aggregate output","Second differences","Average Marginal effects")}else{
 
-      ADC<-list(summary.output,second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))],dydx.list)
-      names(ADC)<-c("Aggregate output","Second differences","Average Marginal effects","Marginal effects")
+      ADC<-list(summary.output,second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))],dydx.list,Jac1)
+      names(ADC)<-c("Aggregate output","Second differences","Average Marginal effects","Marginal effects","Jac")
       }
       if(return.at.2==TRUE){
       ADC<-list(ADC,at.2)

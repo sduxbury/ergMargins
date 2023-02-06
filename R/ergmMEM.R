@@ -133,6 +133,14 @@ ergm.MEM<-function(model,
     colnames(MEM)<-c("MEM","Delta SE","Z","P")
     rownames(MEM)<-var1
     MEM<-signif(MEM,digits=5)
+
+    if(return.dydx==TRUE){
+      MEM<-list(MEM,Jac)
+      names(MEM)<-c("MEM","Jac")
+
+    }
+
+
     return(MEM)
 
   }else{
@@ -199,6 +207,13 @@ ergm.MEM<-function(model,
           MEM<-signif(MEM,digits=5)
           MEM<-list(MEM,marginal.matrix)
           names(MEM)<-c("Marginal effect for nodematch","Marginal effects for nodal covariates")
+
+          if(return.dydx==TRUE){
+            MEM<-list(MEM,Jac)
+            names(MEM)<-c("MEM","Jac")
+
+          }
+
           return(MEM)
         }
 
@@ -216,7 +231,7 @@ ergm.MEM<-function(model,
       #check whether self interaction
     if(var1==var2){
       self.int<-TRUE
-      var2<-paste(var1,".mod")
+      var2<-paste(var1,".mod",sep="")
       dyad.means[var2]<-dyad.means[var1]
     }else{
       self.int<-FALSE
@@ -240,8 +255,6 @@ ergm.MEM<-function(model,
         if(self.int==TRUE){
           dyad.submeans<-dyad.submeans[!names(dyad.submeans)%in%var2]
         }
-          p<-1/(1+exp(-dyad.submeans%*%theta))
-
 
         p<-1/(1+exp(-(dyad.submeans%*%theta)))
 
@@ -258,7 +271,7 @@ ergm.MEM<-function(model,
         #marginal effects for product terms
         dyad.submeans[inter]<-dyad.submeans[var1]*dyad.submeans[var2]
         if(self.int==TRUE){
-          dyad.submeans<-dyad.submeans[,!names(dyad.submeans)%in%var2]
+          dyad.submeans<-dyad.submeans[!names(dyad.submeans)%in%var2]
         }
 
         p<-1/(1+exp(-(dyad.submeans%*%theta)))
@@ -294,6 +307,12 @@ ergm.MEM<-function(model,
     if(length(at.2)==1){
       MEM<-t(as.matrix(marginal.matrix[,-c(5)]))
       rownames(MEM)<-rownames(marginal.matrix)
+      if(return.dydx==TRUE){
+        MEM<-list(MEM,Jac1)
+        names(MEM)<-c("MEM","Jac")
+
+      }
+
       return(MEM)
     }
 
@@ -326,8 +345,16 @@ ergm.MEM<-function(model,
 
 
     if(length(at.2)==2){
-      DCR<-list(second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))])
-      names(DCR)<-c("Second differences","Marginal effects at means")
+      if(return.dydx==TRUE){
+
+        DCR<-list(second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))],Jac1)
+        names(DCR)<-c("Second differences","Marginal effects at means","Jac")
+
+      }else{
+
+         DCR<-list(second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))])
+         names(DCR)<-c("Second differences","Marginal effects at means")
+      }
       return(DCR)
     }else{
 
@@ -337,8 +364,16 @@ ergm.MEM<-function(model,
       summary.output[1,3]<-2*stats::pnorm(abs(summary.output[1,2]),lower.tail = FALSE)
       summary.output<-signif(summary.output,digits=5)
 
-      DCR<-list(summary.output,second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))])
-      names(DCR)<-c("Aggregate output","Second differences","Marginal effects at means")
+      if(return.dydx==TRUE){
+
+        DCR<-list(summary.output,second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))],Jac1)
+        names(DCR)<-c("Aggregate output","Second differences","Marginal effects at means","Jac")
+
+      }else{
+
+        DCR<-list(summary.output,second.diffs.mat,marginal.matrix[,-c(ncol(marginal.matrix))])
+        names(DCR)<-c("Aggregate output","Second differences","Marginal effects at means")
+      }
       return(DCR)
     }
   }

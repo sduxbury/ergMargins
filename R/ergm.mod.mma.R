@@ -16,6 +16,32 @@ ergm.mod.mma<-function(restricted.model,full.model,var1, var2, inter,mediator,
                    at.2=NULL,joint=FALSE,int.eff=FALSE,
                    at.controls=NULL,control_vals=NULL){
 
+  ##check at.controls appear in both models
+  if(!is.null(at.controls)){
+    if(class(restricted.model)%in%"mlergm"){
+      theta1<-restricted.model$theta
+      theta2<-full.model$theta
+
+    }else{
+      theta1<-btergm::coef(restricted.model)
+      theta2<-btergm::coef(full.model)
+
+    }
+
+    if(!is.null(at.controls)){
+      if(!all(at.controls%in%names(theta1))){
+        stop("Variables specified in any.controls must appear in both models to be used.")
+      }
+      if(!all(at.controls%in%names(theta2))){
+        stop("Variables specified in any.controls must appear in both models to be used.")
+      }
+    }
+
+
+
+  }
+
+
 
   if(joint==FALSE & int.eff==FALSE){
     stop("Please specify whether interested in assessing mediation for the total interaction effect, or only the interaction effect. ")
@@ -39,7 +65,6 @@ ergm.mod.mma<-function(restricted.model,full.model,var1, var2, inter,mediator,
         ##matched nodal characteristics are not a product term, so compute marginal effects
         #for var 1 and var 2, then use results to compute marignal effect for interaction
 
-        message("NOTE: when nodematch is specified with continuous main effects, it does not necessarily vary when the main effects change. It can therefore be treated as a main effect. Results returned are for ergm.mma.")
        return(ergm.mma(restricted.model,full.model,mediator=mediator,
                  direct.effect=inter))
 
